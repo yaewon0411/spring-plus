@@ -7,8 +7,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class WeatherDto {
 
-    private  String date;
-    private  String weather;
+    private String date;
+    private String weather;
 
     public WeatherDto(String date, String weather) {
         this.date = date;
