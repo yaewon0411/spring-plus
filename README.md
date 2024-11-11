@@ -1,6 +1,6 @@
-
-### cascade를 사용한 Todo 생성 시 Manager 생성
-cascade 옵션을 PERSIST로 지정하여 Todo가 생성될 때 managers 컬렉션에 있는 Manager 엔티티도 함께 저장되도록 수정
+<details>
+     <summary><b>cascade를 사용한 Todo 생성 시 Manager 생성</b></summary>
+ - cascade 옵션을 PERSIST로 지정하여 Todo가 생성될 때 managers 컬렉션에 있는 Manager 엔티티도 함께 저장되도록 수정
 
 ```java
     @OneToMany(mappedBy = "todo", cascade = CascadeType.PERSIST)
@@ -14,12 +14,14 @@ cascade 옵션을 PERSIST로 지정하여 Todo가 생성될 때 managers 컬렉�
         this.managers.add(new Manager(user, this));
     }
 ```
+</details>
 
-
-### 검색 동적 쿼리 작성을 위한 querydsl 레포 추가
+<details>
+    <summary><b>검색 동적 쿼리 작성을 위한 querydsl 레포 추가</b></summary>
+    
 - 검색 시 추가된 요구 조건
-    - 일정의 weather로 검색할 수 있어야 함
-    - 일정 수정일 구간으로 검색할 수 있어야 함
+   - 일정의 weather로 검색할 수 있어야 함
+   - 일정 수정일 구간으로 검색할 수 있어야 함
 
 1) 
 우선 검색 조건과 페이징 값을 TodoSearchReqDto 객체를 통해 받도록 수정
@@ -79,14 +81,15 @@ public class TodoSearchRepository {
                 .fetchCount();
     }
 }
-
-
+```
 
 3)
-기존 페이지 메타 데이터를 전부 내보내고 있던 것을 중요 정보만 내보내도록 TodoListRespDto를 생성해 선택적으로 값이 나가도록 수정
+기존 페이지 메타 데이터를 전부 내보내고 있던 것을 TodoListRespDto를 통해 선택적으로 값이 나가도록 수정
+</details>
 
+<details>
+    <summary><b>todo 단건 조회 실패 컨트롤러 테스트</b></summary>
 
-### todo 단건 조회 실패 컨트롤러 테스트
 - 기존 코드
 ```java
     @Test
@@ -128,10 +131,10 @@ public class TodoSearchRepository {
                 .andExpect(jsonPath("$.message").value("Todo not found"));
     }
 ```
+</details>
 
-
-
-### 관리자 로그
+<details>
+    <summary><b>관리자 로그</b></summary>
 
 - 기존 코드
 ```java
@@ -161,9 +164,12 @@ UserAdminController 클래스의 changeUserRole() 메소드가 실행 전 동작
                 userId, requestTime, requestUrl, joinPoint.getSignature().getName());
     }
 ```
+</details>
 
+<details>
+    <summary><b>TodoService의 saveTodo() 에서의 오류</b></summary>
 
-### 1. TodoService의 saveTodo() 에서의 오류
+- 기존 코드
 
 ```java
 @Service
@@ -204,4 +210,4 @@ public class TodoService {
 혹시 yaml에서 db 커넥션을 읽기 전용으로 가져오도록 지정한 상황에서 위 오류가 발생한 것인지를 확인하기 위해 `hikari.read-only=true` 상황에서 테스트를 해보았으나 쓰기 작업이 성공함을 확인했습니다<br>
 
 우선 명시적으로 메서드 레벨에서 readOnly를 재정의하도록 @Transactional을 추가해 코드 의도가 들어나게만 개선합니다
-
+</details>
