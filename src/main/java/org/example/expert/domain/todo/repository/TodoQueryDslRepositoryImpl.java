@@ -20,7 +20,7 @@ import static org.example.expert.domain.user.entity.QUser.*;
 @RequiredArgsConstructor
 @Repository
 @Transactional(readOnly = true)
-public class TodoSearchRepository {
+public class TodoQueryDslRepositoryImpl implements TodoQueryDslRepository {
 
     private final JPAQueryFactory queryFactory;
 

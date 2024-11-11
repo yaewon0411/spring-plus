@@ -11,7 +11,7 @@ import org.example.expert.domain.todo.dto.response.TodoResponse;
 import org.example.expert.domain.todo.dto.response.TodoSaveResponse;
 import org.example.expert.domain.todo.entity.Todo;
 import org.example.expert.domain.todo.repository.TodoRepository;
-import org.example.expert.domain.todo.repository.TodoSearchRepository;
+import org.example.expert.domain.todo.repository.TodoQueryDslRepositoryImpl;
 import org.example.expert.domain.user.dto.response.UserResponse;
 import org.example.expert.domain.user.entity.User;
 import org.springframework.data.domain.Page;
@@ -28,7 +28,6 @@ public class TodoService {
 
     private final TodoRepository todoRepository;
     private final WeatherClient weatherClient;
-    private final TodoSearchRepository todoSearchRepository;
 
     public TodoSaveResponse saveTodo(AuthUser authUser, TodoSaveRequest todoSaveRequest) {
         User user = User.fromAuthUser(authUser);
@@ -54,7 +53,7 @@ public class TodoService {
 
     public TodoListRespDto getTodos(TodoSearchReqDto todoSearchReqDto) {
         Pageable pageable = PageRequest.of(todoSearchReqDto.getPage(), todoSearchReqDto.getSize(), Sort.by(Sort.Direction.DESC, "modifiedAt"));
-        Page<Todo> todoPageList = todoSearchRepository.searchTodosByFilter(todoSearchReqDto, pageable);
+        Page<Todo> todoPageList = todoRepository.searchTodosByFilter(todoSearchReqDto, pageable);
         return new TodoListRespDto(todoPageList);
     }
 
