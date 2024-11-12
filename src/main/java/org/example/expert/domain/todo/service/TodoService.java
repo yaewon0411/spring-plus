@@ -58,10 +58,10 @@ public class TodoService {
         return new TodoListRespDto(todoPageList);
     }
 
-    public TodoResponse getTodo(long todoId) {
+    public TodoResponse getTodo(Long todoId) {
         return todoRepository.findByIdWithUser(todoId)
                 .map(TodoResponse::new)
-                .orElseThrow(() -> new InvalidRequestException("Todo not found"));
+                .orElseThrow(() -> new InvalidRequestException("Todo Not found"));
     }
 
     public Todo findByIdOrFail(Long todoId){

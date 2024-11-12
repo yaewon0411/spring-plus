@@ -1,4 +1,30 @@
 <details>
+<summary><b>일정 단건 조회 시의 N+1 문제 처리: queryDsl</b></summary>
+
+  - 기존 코드
+    -  Todo 조회할 때 User를 페치 조인으로 가져오지 않아 Todo.getUser().getXXX()를 수행할 때 추가 쿼리 발생
+  - 개선
+    - querydsl을 사용해 Todo 조인 시 User 페치 조인
+
+```java
+    public Optional<Todo> findByIdWithUser(Long todoId){
+        return Optional.ofNullable(
+                queryFactory
+                        .selectFrom(todo)
+                        .leftJoin(todo.user).fetchJoin()
+                        .where(todo.id.eq(todoId))
+                        .fetchFirst()
+        );
+    }
+```
+
+
+
+</details>
+
+
+
+<details>
      <summary><b>댓글 목록 조회 시의 N+1 문제 처리: queryDsl</b></summary>
 
 **- 기존 코드**

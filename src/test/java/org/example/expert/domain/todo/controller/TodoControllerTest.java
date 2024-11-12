@@ -34,8 +34,7 @@ class TodoControllerTest {
     @Test
     void todo_단건_조회에_성공한다() throws Exception {
         // given
-        long todoId = 1L;
-        String title = "title";
+        Long todoId = 1L;
         AuthUser authUser = new AuthUser(1L, "email", UserRole.USER, "nicknameee");
         User user = User.fromAuthUser(authUser);
         Todo todo = new Todo("title","contents","Sunny",user);
@@ -46,8 +45,8 @@ class TodoControllerTest {
         // then
         mockMvc.perform(get("/todos/{todoId}", todoId))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(todoId))
-                .andExpect(jsonPath("$.title").value(title));
+                .andExpect(jsonPath("$.contents").value(todo.getContents()))
+                .andExpect(jsonPath("$.title").value(todo.getTitle()));
     }
 
     @Test
@@ -57,13 +56,13 @@ class TodoControllerTest {
 
         // when
         when(todoService.getTodo(todoId))
-                .thenThrow(new InvalidRequestException("Todo not found"));
+                .thenThrow(new InvalidRequestException("Todo Not found"));
 
         // then
         mockMvc.perform(get("/todos/{todoId}", todoId))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(HttpStatus.BAD_REQUEST.name()))
                 .andExpect(jsonPath("$.code").value(HttpStatus.BAD_REQUEST.value()))
-                .andExpect(jsonPath("$.message").value("Todo not found"));
+                .andExpect(jsonPath("$.message").value("Todo Not found"));
     }
 }
