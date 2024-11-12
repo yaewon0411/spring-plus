@@ -63,4 +63,9 @@ public class TodoService {
                 .map(TodoResponse::new)
                 .orElseThrow(() -> new InvalidRequestException("Todo not found"));
     }
+
+    public Todo findByIdOrFail(Long todoId){
+        return todoRepository.findById(todoId)
+                .orElseThrow(() -> new InvalidRequestException("Todo Not Found"));
+    }
 }
