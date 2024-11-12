@@ -1,13 +1,16 @@
 package org.example.expert.domain.auth.dto.response;
 
 import lombok.Getter;
+import org.example.expert.domain.user.entity.User;
 
 @Getter
 public class SigninResponse {
 
-    private final String bearerToken;
+   private Long id;
+   private String email;
 
-    public SigninResponse(String bearerToken) {
-        this.bearerToken = bearerToken;
+    public SigninResponse(User user) {
+        this.id = user.getId();
+        this.email = user.getEmail();
     }
 }
