@@ -4,6 +4,7 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.example.expert.domain.todo.dto.request.TodoSearchReqDto;
+import org.example.expert.domain.todo.entity.QTodo;
 import org.example.expert.domain.todo.entity.Todo;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -64,6 +65,16 @@ public class TodoQueryDslRepositoryImpl implements TodoQueryDslRepository {
                 .from(todo)
                 .where(builder)
                 .fetchOne();
+    }
+
+    public Optional<Todo> findByIdWithUser(Long todoId){
+        return Optional.ofNullable(
+                queryFactory
+                        .selectFrom(todo)
+                        .leftJoin(todo.user).fetchJoin()
+                        .where(todo.id.eq(todoId))
+                        .fetchFirst()
+        );
     }
 
 
