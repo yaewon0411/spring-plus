@@ -2,6 +2,7 @@ package org.example.expert.domain.comment.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.expert.domain.comment.dto.request.CommentSaveRequest;
+import org.example.expert.domain.comment.dto.response.CommentListRespDto;
 import org.example.expert.domain.comment.dto.response.CommentResponse;
 import org.example.expert.domain.comment.dto.response.CommentSaveResponse;
 import org.example.expert.domain.comment.entity.Comment;
@@ -10,8 +11,13 @@ import org.example.expert.domain.common.dto.AuthUser;
 import org.example.expert.domain.common.exception.InvalidRequestException;
 import org.example.expert.domain.todo.entity.Todo;
 import org.example.expert.domain.todo.repository.TodoRepository;
+import org.example.expert.domain.todo.service.TodoService;
 import org.example.expert.domain.user.dto.response.UserResponse;
 import org.example.expert.domain.user.entity.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,14 +29,13 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class CommentService {
 
-    private final TodoRepository todoRepository;
     private final CommentRepository commentRepository;
+    private final TodoService todoService;
 
     @Transactional
     public CommentSaveResponse saveComment(AuthUser authUser, long todoId, CommentSaveRequest commentSaveRequest) {
         User user = User.fromAuthUser(authUser);
-        Todo todo = todoRepository.findById(todoId).orElseThrow(() ->
-                new InvalidRequestException("Todo not found"));
+        Todo todo = todoService.findByIdOrFail(todoId);
 
         Comment newComment = new Comment(
                 commentSaveRequest.getContents(),
@@ -47,10 +52,10 @@ public class CommentService {
         );
     }
 
-    public List<CommentResponse> getComments(long todoId) {
-        return commentRepository.findByTodoIdWithUser(todoId)
-                .stream()
-                .map(CommentResponse::new)
-                .toList();
+    public CommentListRespDto getComments(Long todoId, int page, int size) {
+        todoService.findByIdOrFail(todoId);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "modifiedAt"));
+        Page<CommentResponse> commentPage = commentRepository.getCommentsWithUserByTodoId(todoId, pageable);
+        return new CommentListRespDto(commentPage);
     }
 }
