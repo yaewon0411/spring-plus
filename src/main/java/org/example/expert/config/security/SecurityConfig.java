@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.expert.config.jwt.JwtAuthenticationFilter;
+import org.example.expert.config.jwt.JwtAuthorizationFilter;
 import org.example.expert.config.jwt.JwtUtil;
 import org.example.expert.config.security.handler.CustomAccessDeniedHandler;
 import org.example.expert.config.security.handler.CustomAuthenticationEntryPoint;
@@ -42,6 +43,11 @@ public class SecurityConfig {
     }
 
     @Bean
+    public JwtAuthorizationFilter jwtAuthorizationFilter(AuthenticationManager authenticationManager,JwtUtil jwtUtil){
+        return new JwtAuthorizationFilter(authenticationManager, jwtUtil);
+    }
+
+    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, AuthenticationManager authenticationManager) throws Exception{
         log.debug("security filterChain 등록");
         http
@@ -50,7 +56,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(configurationSource()))
                 .authorizeHttpRequests(authorize ->  authorize
                         .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("**/admin/**").hasRole(UserRole.ADMIN.name())
+                        .requestMatchers("/admin/**").hasRole(UserRole.ADMIN.name())
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) //jwt 사용
@@ -58,6 +64,7 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable) //브라우저가 팝업창으로 사용자 인증 진행하는 것 비활성화
                 //필터 추가해야 함
                 .addFilter(jwtAuthenticationFilter(authenticationManager, jwtUtil, objectMapper(), securityResponseHandler()))
+                .addFilter(jwtAuthorizationFilter(authenticationManager,jwtUtil))
                 .exceptionHandling(handler -> handler
                         .authenticationEntryPoint(customAuthenticationEntryPoint())
                         .accessDeniedHandler(customAccessDeniedHandler())
