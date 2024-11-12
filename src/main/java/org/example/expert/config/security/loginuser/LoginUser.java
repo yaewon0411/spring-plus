@@ -1,5 +1,6 @@
 package org.example.expert.config.security.loginuser;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.example.expert.domain.user.entity.User;
 import org.springframework.security.core.GrantedAuthority;
@@ -10,6 +11,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 @RequiredArgsConstructor
+@Getter
 public class LoginUser implements UserDetails {
 
     private final User user;
