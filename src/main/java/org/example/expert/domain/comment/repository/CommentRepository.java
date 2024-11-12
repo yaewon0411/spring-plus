@@ -7,8 +7,8 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface CommentRepository extends JpaRepository<Comment, Long> {
+public interface CommentRepository extends JpaRepository<Comment, Long>, CommentQueryDslRepository {
 
-    @Query("SELECT c FROM Comment c JOIN c.user WHERE c.todo.id = :todoId")
+    @Query("SELECT c FROM Comment c LEFT JOIN FETCH c.user WHERE c.todo.id = :todoId")
     List<Comment> findByTodoIdWithUser(@Param("todoId") Long todoId);
 }

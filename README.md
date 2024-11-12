@@ -1,4 +1,74 @@
 <details>
+     <summary><b>댓글 목록 조회 시의 N+1 문제 처리: queryDsl</b></summary>
+
+**- 기존 코드**
+  - Todo가 존재하는지 여부 검증 안하고 바로 Todo의 댓글 목록 조회
+  - Comment를 조회할 때 User를 페치 조인으로 가져오지 않아 Comment.getUser().getXXX()를 수행할 때 추가 쿼리가 나가고 있음
+  - Comment 페이징 처리 없이 전체 반환하고 있음
+
+**- 개선**
+  - todo가 존재하는지 검증하는 코드 추가 
+  - queryDSL 사용하여 프로젝션과 페이징 수행
+  - 페이징 정보와 전체 댓글 목록 반환 위해 CommentListRespDto 추가
+  
+**- 단위 테스트 진행**
+  - todo 댓글 목록 페이징 조회 성공 테스트
+  - todo 댓글 목록 페이징 조회 성공 테스트: 댓글이 없는 경우
+  - todo 댓글 목록 페이징 조회 성공 테스트: 페이지 번호가 총 페이지 수 초과하면 빈 목록 반환
+  - todo 댓글 목록 페이징 조회 실패 테스트: 존재하지 않는 할일
+
+```java
+@Repository
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
+public class CommentQueryDslRepositoryImpl implements CommentQueryDslRepository{
+
+    private final JPAQueryFactory queryFactory;
+
+    @Override
+    public Page<CommentResponse> getCommentsWithUserByTodoId(Long todoId, Pageable pageable) {
+        List<CommentResponse> commentList = queryFactory
+                .select(Projections.constructor(CommentResponse.class,
+                        comment.id,
+                        comment.contents,
+                        Projections.constructor(UserResponse.class,
+                                comment.user.id,
+                                comment.user.email)
+                ))
+                .from(comment)
+                .leftJoin(comment.user)
+                .where(comment.todo.id.eq(todoId))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        Long totalCount = getTotalCount(todoId);
+
+        return new PageImpl<>(commentList, pageable, totalCount);
+    }
+
+    private Long getTotalCount(Long todoId){
+        return queryFactory
+                        .select(comment.count())
+                        .from(comment)
+                        .where(comment.todo.id.eq(todoId))
+                        .fetchOne();
+    }
+}
+```
+
+
+
+
+
+</details>
+
+
+
+
+
+
+<details>
      <summary><b>cascade를 사용한 Todo 생성 시 Manager 생성</b></summary>
  - cascade 옵션을 PERSIST로 지정하여 Todo가 생성될 때 managers 컬렉션에 있는 Manager 엔티티도 함께 저장되도록 수정
 

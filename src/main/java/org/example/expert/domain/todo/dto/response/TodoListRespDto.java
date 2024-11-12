@@ -24,10 +24,7 @@ public class TodoListRespDto {
     public TodoListRespDto(Page<Todo> todoPageList) {
         this.todoList = todoPageList.getContent()
                 .stream()
-                .map(todo -> new TodoResponse(todo.getId(), todo.getTitle(),
-                        todo.getContents(), todo.getWeather(),
-                        new UserResponse(todo.getUser().getId(), todo.getUser().getEmail()),
-                        todo.getCreatedAt(), todo.getModifiedAt()))
+                .map(TodoResponse::new)
                 .toList();
         this.totalElements = todoPageList.getTotalElements();
         this.totalPages = todoPageList.getTotalPages();
