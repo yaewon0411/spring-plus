@@ -36,7 +36,7 @@ public class TodoQueryDslRepositoryImpl implements TodoQueryDslRepository {
                 .orderBy(todo.modifiedAt.desc())
                 .fetch();
 
-        long totalCount = getTotalCount(booleanBuilder);
+        Long totalCount = getTotalCount(booleanBuilder);
 
         return new PageImpl<>(todoList, pageable, totalCount);
     }
@@ -58,12 +58,12 @@ public class TodoQueryDslRepositoryImpl implements TodoQueryDslRepository {
         return builder;
     }
 
-    private long getTotalCount(BooleanBuilder builder) {
+    private Long getTotalCount(BooleanBuilder builder) {
         return queryFactory
-                .selectFrom(todo)
-                .leftJoin(todo.user, user)
+                .select(todo.count())
+                .from(todo)
                 .where(builder)
-                .fetchCount();
+                .fetchOne();
     }
 
 
