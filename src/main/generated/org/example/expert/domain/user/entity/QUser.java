@@ -31,6 +31,8 @@ public class QUser extends EntityPathBase<User> {
     //inherited
     public final DateTimePath<java.time.LocalDateTime> modifiedAt = _super.modifiedAt;
 
+    public final StringPath nickname = createString("nickname");
+
     public final StringPath password = createString("password");
 
     public final EnumPath<org.example.expert.domain.user.enums.UserRole> userRole = createEnum("userRole", org.example.expert.domain.user.enums.UserRole.class);

@@ -43,23 +43,14 @@ public class CommentService {
         return new CommentSaveResponse(
                 savedComment.getId(),
                 savedComment.getContents(),
-                new UserResponse(user.getId(), user.getEmail())
+                new UserResponse(user)
         );
     }
 
     public List<CommentResponse> getComments(long todoId) {
-        List<Comment> commentList = commentRepository.findByTodoIdWithUser(todoId);
-
-        List<CommentResponse> dtoList = new ArrayList<>();
-        for (Comment comment : commentList) {
-            User user = comment.getUser();
-            CommentResponse dto = new CommentResponse(
-                    comment.getId(),
-                    comment.getContents(),
-                    new UserResponse(user.getId(), user.getEmail())
-            );
-            dtoList.add(dto);
-        }
-        return dtoList;
+        return commentRepository.findByTodoIdWithUser(todoId)
+                .stream()
+                .map(CommentResponse::new)
+                .toList();
     }
 }
