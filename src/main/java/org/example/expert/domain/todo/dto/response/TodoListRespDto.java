@@ -3,6 +3,7 @@ package org.example.expert.domain.todo.dto.response;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.example.expert.domain.todo.entity.Todo;
 import org.example.expert.domain.user.dto.response.UserResponse;
 import org.springframework.data.domain.Page;
