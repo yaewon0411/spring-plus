@@ -5,8 +5,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.expert.domain.comment.entity.Comment;
 import org.example.expert.domain.common.entity.Timestamped;
+import org.example.expert.domain.common.exception.InvalidRequestException;
 import org.example.expert.domain.manager.entity.Manager;
 import org.example.expert.domain.user.entity.User;
+import org.springframework.util.ObjectUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,5 +41,11 @@ public class Todo extends Timestamped {
         this.weather = weather;
         this.user = user;
         this.managers.add(new Manager(user, this));
+    }
+
+    public void isOwner(Long userId){
+        if (!ObjectUtils.nullSafeEquals(userId, this.getUser().getId())) {
+            throw new InvalidRequestException("해당 일정을 만든 유저여야 합니다");
+        }
     }
 }

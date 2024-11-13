@@ -1,4 +1,38 @@
 <details>
+<summary><b>자체 구현 인증/인가 처리 방식에서 Spring Security로 전환</b></summary>
+
+- 기존 커스텀 JWT 필터 기반 인증 체계에서 Spring Security 프레임워크로 전환
+  - 기존 관련 파일들 /legacy 디렉터리로 이동
+
+### Spring Security 설정
+- JWT 기반의 Stateless 인증 구현
+- 주요 보안 설정:
+    - CORS 설정 활성화
+    - CSRF 보호 비활성화
+    - Session 미사용 (STATELESS)
+    - Form 로그인 비활성화
+    - HTTP Basic 인증 비활성화
+
+### API 접근 권한
+- 인증 없이 접근 가능: `/auth/**`
+- 관리자 전용: `/admin/**`
+- 그 외 엔드포인트: 인증 필요
+
+### Custom Filters
+1. JwtExceptionFilter: JWT 관련 예외 처리
+2. JwtAuthenticationFilter: 로그인 및 JWT 토큰 발급
+3. JwtAuthorizationFilter: JWT 토큰 검증 및 인가 처리
+
+### 보안 예외 처리
+- CustomAuthenticationEntryPoint: 인증 실패 처리
+- CustomAccessDeniedHandler: 인가 실패 처리
+
+</details>
+
+
+
+
+<details>
 <summary><b>일정 단건 조회 시의 N+1 문제 처리: queryDsl</b></summary>
 
   - 기존 코드

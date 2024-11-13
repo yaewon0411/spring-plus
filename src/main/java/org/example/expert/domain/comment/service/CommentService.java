@@ -33,8 +33,7 @@ public class CommentService {
     private final TodoService todoService;
 
     @Transactional
-    public CommentSaveResponse saveComment(AuthUser authUser, long todoId, CommentSaveRequest commentSaveRequest) {
-        User user = User.fromAuthUser(authUser);
+    public CommentSaveResponse saveComment(User user, long todoId, CommentSaveRequest commentSaveRequest) {
         Todo todo = todoService.findByIdOrFail(todoId);
 
         Comment newComment = new Comment(
