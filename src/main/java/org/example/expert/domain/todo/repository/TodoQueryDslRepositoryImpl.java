@@ -69,7 +69,7 @@ public class TodoQueryDslRepositoryImpl implements TodoQueryDslRepository {
                 .leftJoin(todo.managers, manager)
                 .leftJoin(manager.user, user)
                 .where(createSearchFilter(todoSearchReqDto))
-                .groupBy(todo.id, todo.title, todo.createdAt)
+                .groupBy(todo.id)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .orderBy(todo.createdAt.desc())
