@@ -31,7 +31,7 @@ public class TransactionalTest {
     @Rollback
     @DisplayName(value = "hikari.read-only=true 상황에서 쓰기 작업 시도")
     public void 쓰기작업테스트(){
-        User user = new User("test@naver.com","12312312312", UserRole.USER);
+        User user = new User("test@naver.com","12312312312", UserRole.USER,"nickname");
         userRepository.save(user);
 
         Todo todo = todoRepository.save(new Todo("test", "test", "test", user));
