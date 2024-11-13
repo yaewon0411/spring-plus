@@ -1,4 +1,4 @@
-package org.example.expert.config;
+package org.example.expert.config.legacy;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;

@@ -1,4 +1,4 @@
-package org.example.expert.config;
+package org.example.expert.config.legacy;
 
 import lombok.RequiredArgsConstructor;
 import org.example.expert.config.jwt.JwtUtil;
