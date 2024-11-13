@@ -169,8 +169,8 @@ public class TodoSearchRepository {
 
     private final JPAQueryFactory queryFactory;
 
-    public Page<Todo> searchTodosByFilter(TodoSearchReqDto todoSearchReqDto, Pageable pageable){
-        BooleanBuilder booleanBuilder = createSearchFilter(todoSearchReqDto);
+    public Page<Todo> searchTodosByFilter(TodoSearchReqDto todoListReqDto, Pageable pageable){
+        BooleanBuilder booleanBuilder = createSearchFilter(todoListReqDto);
 
         List<Todo> todoList = queryFactory
                 .selectFrom(todo)
@@ -186,18 +186,18 @@ public class TodoSearchRepository {
         return new PageImpl<>(todoList, pageable, totalCount);
     }
 
-    private BooleanBuilder createSearchFilter(TodoSearchReqDto todoSearchReqDto){
+    private BooleanBuilder createSearchFilter(TodoSearchReqDto todoListReqDto){
         BooleanBuilder builder = new BooleanBuilder();
 
         //날씨 검색
-        Optional.ofNullable(todoSearchReqDto.getWeather())
+        Optional.ofNullable(todoListReqDto.getWeather())
                 .filter(StringUtils::hasText)
                 .ifPresent(weather -> builder.and(todo.weather.contains(weather)));
 
         //수정일 기간 검색
-        Optional.ofNullable(todoSearchReqDto.getStartDateTime())
+        Optional.ofNullable(todoListReqDto.getStartDateTime())
                 .ifPresent(startDate -> builder.and(todo.modifiedAt.goe(startDate)));
-        Optional.ofNullable(todoSearchReqDto.getEndDateTime())
+        Optional.ofNullable(todoListReqDto.getEndDateTime())
                 .ifPresent(endDate -> builder.and(todo.modifiedAt.loe(endDate)));
 
         return builder;
