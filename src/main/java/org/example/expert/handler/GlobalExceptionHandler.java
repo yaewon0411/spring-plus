@@ -7,6 +7,7 @@ import org.example.expert.domain.common.exception.InvalidRequestException;
 import org.example.expert.domain.common.exception.ServerException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -16,6 +17,15 @@ import java.util.Map;
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, Object>> validationException(MethodArgumentNotValidException e) {
+        Map<String, String> errorMap = new HashMap<>();
+        e.getBindingResult().getFieldErrors().forEach(error ->
+                errorMap.put(error.getField(), error.getDefaultMessage())
+        );
+        return getErrorResponse(HttpStatus.BAD_REQUEST, errorMap);
+    }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGeneralException(Exception e){
@@ -41,7 +51,7 @@ public class GlobalExceptionHandler {
         return getErrorResponse(status, ex.getMsg());
     }
 
-    public ResponseEntity<Map<String, Object>> getErrorResponse(HttpStatus status, String message) {
+    public ResponseEntity<Map<String, Object>> getErrorResponse(HttpStatus status, Object message) {
         Map<String, Object> errorResponse = new HashMap<>();
         errorResponse.put("status", status.name());
         errorResponse.put("code", status.value());
@@ -49,5 +59,6 @@ public class GlobalExceptionHandler {
 
         return new ResponseEntity<>(errorResponse, status);
     }
+
 }
 
