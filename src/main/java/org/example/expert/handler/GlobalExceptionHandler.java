@@ -1,5 +1,7 @@
 package org.example.expert.handler;
 
+import lombok.extern.slf4j.Slf4j;
+import org.apache.coyote.Response;
 import org.example.expert.domain.auth.exception.AuthException;
 import org.example.expert.domain.common.exception.InvalidRequestException;
 import org.example.expert.domain.common.exception.ServerException;
@@ -12,7 +14,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Map<String, Object>> handleGeneralException(Exception e){
+        log.error("예기치 못한 내부 오류 발생: {}", e.getMessage(), e);
+        return getErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+    }
 
     @ExceptionHandler(InvalidRequestException.class)
     public ResponseEntity<Map<String, Object>> invalidRequestExceptionException(InvalidRequestException ex) {
