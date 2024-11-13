@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.expert.config.jwt.JwtAuthenticationFilter;
 import org.example.expert.config.jwt.JwtAuthorizationFilter;
+import org.example.expert.config.jwt.JwtExceptionFilter;
 import org.example.expert.config.jwt.JwtUtil;
 import org.example.expert.config.security.handler.CustomAccessDeniedHandler;
 import org.example.expert.config.security.handler.CustomAuthenticationEntryPoint;
@@ -22,6 +23,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -33,6 +35,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class SecurityConfig {
 
     private final JwtUtil jwtUtil;
+    private final ObjectMapper om;
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter(AuthenticationManager authenticationManager,
@@ -45,6 +48,10 @@ public class SecurityConfig {
     @Bean
     public JwtAuthorizationFilter jwtAuthorizationFilter(AuthenticationManager authenticationManager,JwtUtil jwtUtil){
         return new JwtAuthorizationFilter(authenticationManager, jwtUtil);
+    }
+    @Bean
+    public JwtExceptionFilter jwtExceptionFilter(SecurityResponseHandler securityResponseHandler){
+        return new JwtExceptionFilter(securityResponseHandler);
     }
 
     @Bean
@@ -63,8 +70,9 @@ public class SecurityConfig {
                 .formLogin(AbstractHttpConfigurer::disable) //formLogin 비활성화
                 .httpBasic(AbstractHttpConfigurer::disable) //브라우저가 팝업창으로 사용자 인증 진행하는 것 비활성화
                 //필터 추가해야 함
-                .addFilter(jwtAuthenticationFilter(authenticationManager, jwtUtil, objectMapper(), securityResponseHandler()))
-                .addFilter(jwtAuthorizationFilter(authenticationManager,jwtUtil))
+                .addFilter(jwtAuthenticationFilter(authenticationManager, jwtUtil, om, securityResponseHandler()))
+                .addFilter(jwtAuthorizationFilter(authenticationManager, jwtUtil))
+                .addFilterBefore(jwtExceptionFilter(securityResponseHandler()), JwtAuthorizationFilter.class)
                 .exceptionHandling(handler -> handler
                         .authenticationEntryPoint(customAuthenticationEntryPoint())
                         .accessDeniedHandler(customAccessDeniedHandler())
@@ -94,7 +102,7 @@ public class SecurityConfig {
 
     @Bean
     public SecurityResponseHandler securityResponseHandler(){
-        return new SecurityResponseHandler(objectMapper());
+        return new SecurityResponseHandler(om);
     }
 
     @Bean
@@ -102,10 +110,6 @@ public class SecurityConfig {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
-    @Bean
-    public ObjectMapper objectMapper(){
-        return new ObjectMapper();
-    }
 
     @Bean
     public CustomAccessDeniedHandler customAccessDeniedHandler(){
