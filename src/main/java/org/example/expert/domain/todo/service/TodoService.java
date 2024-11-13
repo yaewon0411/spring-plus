@@ -2,16 +2,16 @@ package org.example.expert.domain.todo.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.expert.client.WeatherClient;
-import org.example.expert.domain.common.dto.AuthUser;
 import org.example.expert.domain.common.exception.InvalidRequestException;
 import org.example.expert.domain.todo.dto.request.TodoSaveRequest;
+import org.example.expert.domain.todo.dto.request.TodoListReqDto;
 import org.example.expert.domain.todo.dto.request.TodoSearchReqDto;
 import org.example.expert.domain.todo.dto.response.TodoListRespDto;
 import org.example.expert.domain.todo.dto.response.TodoResponse;
 import org.example.expert.domain.todo.dto.response.TodoSaveResponse;
+import org.example.expert.domain.todo.dto.response.TodoSearchRespDto;
 import org.example.expert.domain.todo.entity.Todo;
 import org.example.expert.domain.todo.repository.TodoRepository;
-import org.example.expert.domain.todo.repository.TodoQueryDslRepositoryImpl;
 import org.example.expert.domain.user.dto.response.UserResponse;
 import org.example.expert.domain.user.entity.User;
 import org.springframework.data.domain.Page;
@@ -20,6 +20,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import static org.example.expert.domain.todo.dto.response.TodoSearchRespDto.*;
 
 @Service
 @RequiredArgsConstructor
@@ -50,9 +52,9 @@ public class TodoService {
         );
     }
 
-    public TodoListRespDto getTodos(TodoSearchReqDto todoSearchReqDto) {
-        Pageable pageable = PageRequest.of(todoSearchReqDto.getPage(), todoSearchReqDto.getSize(), Sort.by(Sort.Direction.DESC, "modifiedAt"));
-        Page<Todo> todoPageList = todoRepository.searchTodosByFilter(todoSearchReqDto, pageable);
+    public TodoListRespDto getTodos(TodoListReqDto todoListReqDto) {
+        Pageable pageable = PageRequest.of(todoListReqDto.getPage(), todoListReqDto.getSize(), Sort.by(Sort.Direction.DESC, "modifiedAt"));
+        Page<Todo> todoPageList = todoRepository.findTodosByFilter(todoListReqDto, pageable);
         return new TodoListRespDto(todoPageList);
     }
 
@@ -65,5 +67,11 @@ public class TodoService {
     public Todo findByIdOrFail(Long todoId){
         return todoRepository.findById(todoId)
                 .orElseThrow(() -> new InvalidRequestException("Todo Not Found"));
+    }
+
+    public TodoSearchRespDto searchTodos(TodoSearchReqDto todoSearchReqDto) {
+        Pageable pageable = PageRequest.of(todoSearchReqDto.getPage(), todoSearchReqDto.getSize(), Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<TodoRespDto> todoPageList = todoRepository.searchTodosByFilter(todoSearchReqDto, pageable);
+        return new TodoSearchRespDto(todoPageList);
     }
 }
