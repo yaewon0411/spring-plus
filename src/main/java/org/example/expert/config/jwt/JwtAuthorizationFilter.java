@@ -59,9 +59,9 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
             throw new InvalidRequestException(e.getMessage());
         }catch(InvalidRequestException e){
             throw e;
-        } catch(Exception e){
+        } catch(ServletException e){
             log.error("인가 중 서버 및 내부 오류 발생: ",e.getMessage(), e);
-            throw new ServletException(e.getMessage());
+            throw e;
         }
     }
 
