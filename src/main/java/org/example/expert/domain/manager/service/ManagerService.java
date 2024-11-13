@@ -15,6 +15,7 @@ import org.example.expert.domain.todo.service.TodoService;
 import org.example.expert.domain.user.dto.response.UserResponse;
 import org.example.expert.domain.user.entity.User;
 import org.example.expert.domain.user.repository.UserRepository;
+import org.example.expert.domain.user.service.UserService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
@@ -35,7 +36,7 @@ public class ManagerService {
     public ManagerSaveResponse saveManager(User user, Long todoId, ManagerSaveRequest managerSaveRequest) {
         Todo todo = todoService.findByIdOrFail(todoId);
         todo.isOwner(user.getId());
-        User managerUser = validateManagerAssignment(managerSaveRequest, user);
+        User managerUser = validateManagerAssignment(managerSaveRequest, user, todo);
         Manager savedManagerUser = managerRepository.save(new Manager(managerUser, todo));
 
         return new ManagerSaveResponse(
@@ -44,12 +45,17 @@ public class ManagerService {
         );
     }
 
-    private User validateManagerAssignment(ManagerSaveRequest managerSaveRequest, User user){
+    private User validateManagerAssignment(ManagerSaveRequest managerSaveRequest, User user, Todo todo){
+        //이미 배정된 유저인지 확인
+        if (managerRepository.findByUserIdAndTodoId(managerSaveRequest.getManagerUserId(), todo.getId()).isPresent()) {
+            throw new InvalidRequestException("이미 해당 일정에 담당된 유저입니다");
+        }
+
         User managerUser = userRepository.findById(managerSaveRequest.getManagerUserId())
-                .orElseThrow(() -> new InvalidRequestException("등록하려고 하는 담당자 유저가 존재하지 않습니다."));
+                .orElseThrow(() -> new InvalidRequestException("등록하려고 하는 담당자 유저가 존재하지 않습니다"));
 
         if (ObjectUtils.nullSafeEquals(user.getId(), managerUser.getId())) {
-            throw new InvalidRequestException("일정 작성자는 본인을 담당자로 등록할 수 없습니다.");
+            throw new InvalidRequestException("일정 작성자는 본인을 담당자로 등록할 수 없습니다");
         }
         return managerUser;
     }
