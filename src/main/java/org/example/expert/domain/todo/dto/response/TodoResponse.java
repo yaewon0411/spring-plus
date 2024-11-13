@@ -1,21 +1,24 @@
 package org.example.expert.domain.todo.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.example.expert.domain.todo.entity.Todo;
 import org.example.expert.domain.user.dto.response.UserResponse;
 
 import java.time.LocalDateTime;
 
 @Getter
+@NoArgsConstructor
 public class TodoResponse {
 
-    private final Long id;
-    private final String title;
-    private final String contents;
-    private final String weather;
-    private final UserResponse user;
-    private final LocalDateTime createdAt;
-    private final LocalDateTime modifiedAt;
+    private Long id;
+    private String title;
+    private String contents;
+    private String weather;
+    private UserResponse user;
+    private LocalDateTime createdAt;
+    private LocalDateTime modifiedAt;
 
     public TodoResponse(Todo todo) {
         this.id = todo.getId();
