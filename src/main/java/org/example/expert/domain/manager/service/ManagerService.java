@@ -52,7 +52,7 @@ public class ManagerService {
         }
 
         User managerUser = userRepository.findById(managerSaveRequest.getManagerUserId())
-                .orElseThrow(() -> new InvalidRequestException("등록하려고 하는 담당자 유저가 존재하지 않습니다"));
+                .orElseThrow(() -> new InvalidRequestException("등록하려고 하는 유저가 존재하지 않습니다"));
 
         if (ObjectUtils.nullSafeEquals(user.getId(), managerUser.getId())) {
             throw new InvalidRequestException("일정 작성자는 본인을 담당자로 등록할 수 없습니다");
