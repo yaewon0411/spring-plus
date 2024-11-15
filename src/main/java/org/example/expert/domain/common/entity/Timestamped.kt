@@ -11,7 +11,7 @@ import java.time.LocalDateTime
 
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener::class)
-abstract class KTimestamped {
+abstract class Timestamped {
 
     @CreatedDate
     @Column(updatable = false)

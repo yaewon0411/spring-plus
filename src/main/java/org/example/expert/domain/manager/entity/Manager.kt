@@ -1,7 +1,7 @@
 package org.example.expert.domain.manager.entity
 
 import jakarta.persistence.*
-import org.example.expert.domain.common.entity.KTimestamped
+import org.example.expert.domain.common.entity.Timestamped
 import org.example.expert.domain.common.exception.InvalidRequestException
 import org.example.expert.domain.todo.entity.Todo
 import org.example.expert.domain.user.entity.User
@@ -20,7 +20,7 @@ class Manager protected constructor(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "todo_id", nullable = false)
     var todo: Todo,
-): KTimestamped(){
+): Timestamped(){
 
     constructor(user: User, todo: Todo) :this(
         id = null,

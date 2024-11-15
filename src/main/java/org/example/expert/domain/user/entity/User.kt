@@ -1,9 +1,8 @@
 package org.example.expert.domain.user.entity
 
 import jakarta.persistence.*
-import lombok.Builder
 import org.example.expert.domain.common.dto.AuthUser
-import org.example.expert.domain.common.entity.KTimestamped
+import org.example.expert.domain.common.entity.Timestamped
 import org.example.expert.domain.user.enums.UserRole
 
 @Entity
@@ -22,7 +21,7 @@ class User protected constructor(
 
     @Column(length = 12, nullable = false)
     var nickname: String
-): KTimestamped() {
+): Timestamped() {
 
     constructor(email: String, password: String, userRole: UserRole, nickname: String): this(
         id = null,
