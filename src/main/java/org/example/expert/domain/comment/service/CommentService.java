@@ -27,7 +27,7 @@ public class CommentService {
     private final TodoService todoService;
 
     @Transactional
-    public CommentSaveResponse saveComment(User user, long todoId, CommentSaveRequest commentSaveRequest) {
+    public CommentSaveResponse saveComment(User user, Long todoId, CommentSaveRequest commentSaveRequest) {
         Todo todo = todoService.findByIdOrFail(todoId);
 
         Comment newComment = new Comment(
