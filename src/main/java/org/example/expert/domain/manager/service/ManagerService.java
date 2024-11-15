@@ -1,8 +1,6 @@
 package org.example.expert.domain.manager.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.expert.config.security.loginuser.LoginUser;
-import org.example.expert.domain.common.dto.AuthUser;
 import org.example.expert.domain.common.exception.InvalidRequestException;
 import org.example.expert.domain.manager.dto.request.ManagerSaveRequest;
 import org.example.expert.domain.manager.dto.response.ManagerResponse;
@@ -10,17 +8,13 @@ import org.example.expert.domain.manager.dto.response.ManagerSaveResponse;
 import org.example.expert.domain.manager.entity.Manager;
 import org.example.expert.domain.manager.repository.ManagerRepository;
 import org.example.expert.domain.todo.entity.Todo;
-import org.example.expert.domain.todo.repository.TodoRepository;
 import org.example.expert.domain.todo.service.TodoService;
 import org.example.expert.domain.user.dto.response.UserResponse;
 import org.example.expert.domain.user.entity.User;
 import org.example.expert.domain.user.repository.UserRepository;
-import org.example.expert.domain.user.service.UserService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.ObjectUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -34,31 +28,26 @@ public class ManagerService {
 
     @Transactional
     public ManagerSaveResponse saveManager(User user, Long todoId, ManagerSaveRequest managerSaveRequest) {
+        User targetUser = userRepository.findById(managerSaveRequest.getTargetUserId())
+                .orElseThrow(() -> new InvalidRequestException("등록하려고 하는 유저가 존재하지 않습니다"));
         Todo todo = todoService.findByIdOrFail(todoId);
-        todo.isOwner(user.getId());
-        User managerUser = validateManagerAssignment(managerSaveRequest, user, todo);
-        Manager savedManagerUser = managerRepository.save(new Manager(managerUser, todo));
+        todo.isOwner(user);
+        validateManagerAssignment(targetUser, todo);
+        Manager manager = managerRepository.save(new Manager(targetUser, todo));
 
-        return new ManagerSaveResponse(
-                savedManagerUser.getId(),
-                new UserResponse(managerUser)
-        );
+        return new ManagerSaveResponse(manager);
     }
 
-    private User validateManagerAssignment(ManagerSaveRequest managerSaveRequest, User user, Todo todo){
+
+    private User validateManagerAssignment(User targetUser, Todo todo){
         //이미 배정된 유저인지 확인
-        if (managerRepository.findByUserIdAndTodoId(managerSaveRequest.getManagerUserId(), todo.getId()).isPresent()) {
+        if (managerRepository.findByUserAndTodo(targetUser, todo).isPresent()) {
             throw new InvalidRequestException("이미 해당 일정에 담당된 유저입니다");
         }
-
-        User managerUser = userRepository.findById(managerSaveRequest.getManagerUserId())
-                .orElseThrow(() -> new InvalidRequestException("등록하려고 하는 유저가 존재하지 않습니다"));
-
-        if (ObjectUtils.nullSafeEquals(user.getId(), managerUser.getId())) {
-            throw new InvalidRequestException("일정 작성자는 본인을 담당자로 등록할 수 없습니다");
-        }
-        return managerUser;
+        todo.validateManagerAssignment(targetUser);
+        return targetUser;
     }
+
 
     public List<ManagerResponse> getManagers(Long todoId) {
         Todo todo = todoService.findByIdOrFail(todoId);
@@ -68,10 +57,11 @@ public class ManagerService {
                 .toList();
     }
 
+
     @Transactional
     public void deleteManager(User user, Long todoId, Long managerId) {
         Todo todo = todoService.findByIdOrFail(todoId);
-        todo.isOwner(user.getId());
+        todo.isOwner(user);
 
         Manager manager = managerRepository.findById(managerId)
                 .orElseThrow(() -> new InvalidRequestException("Manager not found"));
