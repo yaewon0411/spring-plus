@@ -18,7 +18,7 @@ public class Manager {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false) // 일정 만든 사람 id
+    @JoinColumn(name = "user_id", nullable = false) // 일정에 배정된 유저 (일정 생성자는 일정 생성 시 cascade에 따라 자동 배정)
     private User user;
     @ManyToOne(fetch = FetchType.LAZY) // 일정 id
     @JoinColumn(name = "todo_id", nullable = false)

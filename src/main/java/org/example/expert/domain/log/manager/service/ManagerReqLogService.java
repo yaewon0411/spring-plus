@@ -21,7 +21,7 @@ public class ManagerReqLogService {
     public void saveLog(ManagerSaveRequest managerSaveRequest, ManagerReqStatus status, User user, Long todoId, String message){
         ManagerReqLog log = ManagerReqLog.builder()
                 .requestUserId(user.getId())
-                .targetUserId(managerSaveRequest.getManagerUserId())
+                .targetUserId(managerSaveRequest.getTargetUserId())
                 .todoId(todoId)
                 .status(status)
                 .message(message)

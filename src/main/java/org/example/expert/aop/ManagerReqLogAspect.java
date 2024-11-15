@@ -27,15 +27,15 @@ public class ManagerReqLogAspect {
         ManagerLogContext managerLogContext = ManagerLogContext.validateAndCreate(joinPoint.getArgs());
         try{
             Object result = joinPoint.proceed();
-            String message = ManagerLogMessage.ASSIGNED_SUCCESS.format(managerLogContext.getRequest().getManagerUserId(), managerLogContext.getTodoId());
+            String message = ManagerLogMessage.ASSIGNED_SUCCESS.format(managerLogContext.getRequest().getTargetUserId(), managerLogContext.getTodoId());
             saveLog(managerLogContext, message, ManagerReqStatus.SUCCESS, null);
             return result;
         }catch (InvalidRequestException e) {
-            String message = ManagerLogMessage.ASSIGNED_FAIL.format(e.getMessage(), managerLogContext.getTodoId(), managerLogContext.getRequest().getManagerUserId());
+            String message = ManagerLogMessage.ASSIGNED_FAIL.format(e.getMessage(), managerLogContext.getTodoId(), managerLogContext.getRequest().getTargetUserId());
             saveLog(managerLogContext, message, ManagerReqStatus.FAIL, e);
             throw e;
         }catch(Exception e){
-            String message = ManagerLogMessage.INTERNAL_FAIL.format(e.getMessage(), managerLogContext.getTodoId(), managerLogContext.getRequest().getManagerUserId());
+            String message = ManagerLogMessage.INTERNAL_FAIL.format(e.getMessage(), managerLogContext.getTodoId(), managerLogContext.getRequest().getTargetUserId());
             saveLog(managerLogContext, message, ManagerReqStatus.FAIL, e);
             throw e;
         }
