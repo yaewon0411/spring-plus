@@ -465,47 +465,76 @@ public class TodoSearchRepository {
 
     private final JPAQueryFactory queryFactory;
 
-    public Page<Todo> searchTodosByFilter(TodoSearchReqDto todoListReqDto, Pageable pageable){
-        BooleanBuilder booleanBuilder = createSearchFilter(todoListReqDto);
+  /**
+   * 필터 조건에 따라 Todo 엔티티 목록을 페이징하여 조회합니다
+   * 조회 시 Todo 작성자 정보를 함께 fetch join으로 가져옵니다
+   *
+   * @param todoListReqDto 필터 조건 (날씨, 수정일 범위)
+   * @param pageable 페이징 정보
+   * @return 조회된 Todo 엔티티 목록과 페이징 정보가 포함된 Page 객체
+   */
+  public Page<Todo> findTodosByFilter(TodoListReqDto todoListReqDto, Pageable pageable){
+    List<Todo> todoList = queryFactory
+            .selectFrom(todo)
+            .leftJoin(todo.user, user).fetchJoin()
+            .where(createFindFilter(todoListReqDto))
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize())
+            .orderBy(todo.modifiedAt.desc())
+            .fetch();
 
-        List<Todo> todoList = queryFactory
-                .selectFrom(todo)
-                .leftJoin(todo.user, user).fetchJoin()
-                .where(booleanBuilder)
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .orderBy(todo.modifiedAt.desc())
-                .fetch();
+    Long totalCount = getTotalCountWithFindFilter(todoListReqDto);
 
-        long totalCount = getTotalCount(booleanBuilder);
+    return new PageImpl<>(todoList, pageable, totalCount);
+  }
 
-        return new PageImpl<>(todoList, pageable, totalCount);
-    }
+  private BooleanExpression containsWeather(String keyword){
+    return todo.weather.contains(keyword);
+  }
+  
 
-    private BooleanBuilder createSearchFilter(TodoSearchReqDto todoListReqDto){
-        BooleanBuilder builder = new BooleanBuilder();
+  private BooleanBuilder createFindFilter(TodoListReqDto todoListReqDto){
+    BooleanBuilder builder = new BooleanBuilder();
 
-        //날씨 검색
-        Optional.ofNullable(todoListReqDto.getWeather())
-                .filter(StringUtils::hasText)
-                .ifPresent(weather -> builder.and(todo.weather.contains(weather)));
+    //날씨 검색
+    Optional.ofNullable(todoListReqDto.getWeather())
+            .filter(StringUtils::hasText)
+            .ifPresent(weather -> builder.and(containsWeather(weather)));
 
-        //수정일 기간 검색
-        Optional.ofNullable(todoListReqDto.getStartDateTime())
-                .ifPresent(startDate -> builder.and(todo.modifiedAt.goe(startDate)));
-        Optional.ofNullable(todoListReqDto.getEndDateTime())
-                .ifPresent(endDate -> builder.and(todo.modifiedAt.loe(endDate)));
+    //수정일 기간 검색
+    Optional.ofNullable(betweenModifiedAt(
+            todoListReqDto.getStartDateTime(),
+            todoListReqDto.getEndDateTime()
+    )).ifPresent(builder::and);
 
-        return builder;
-    }
+    return builder;
+  }
 
-    private long getTotalCount(BooleanBuilder builder) {
-        return queryFactory
-                .selectFrom(todo)
-                .leftJoin(todo.user, user)
-                .where(builder)
-                .fetchCount();
-    }
+
+  private Long getTotalCountWithFindFilter(TodoListReqDto todoListReqDto) {
+    return Optional.ofNullable(queryFactory
+                    .select(todo.count())
+                    .from(todo)
+                    .where(createFindFilter(todoListReqDto))
+                    .fetchOne())
+            .orElse(0L);
+  }
+
+  private BooleanExpression betweenModifiedAt(LocalDateTime startDate, LocalDateTime endDate){
+    return combinePredicates(
+            startDate != null? todo.modifiedAt.goe(startDate):null,
+            endDate != null? todo.modifiedAt.loe(endDate):null
+    );
+  }
+
+
+  private BooleanExpression combinePredicates(BooleanExpression... expressions){
+    return Arrays.stream(expressions)
+            .filter(Objects::nonNull)
+            .reduce(BooleanExpression::and)
+            .orElse(null);
+  }
+
 }
 ```
 
