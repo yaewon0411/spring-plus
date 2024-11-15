@@ -1,4 +1,271 @@
 <details>
+<summary><b>담당자 등록 요청 기록 로깅 AOP 구현</b></summary>
+
+일정에 담당자 등록 요청이 들어올 때 해당 내용에 대한 로그를 기록하게 되었다
+
+담당자 등록과는 별개로 로그 테이블에는 항상 요청 로그가 남아야 한다
+
+우선 다음과 같은 로깅 요구사항이 있다:
+
+- 담당자 등록 요청이 실패해도 해당 로그가 남아야 한다
+- 로그 생성 시간이 같이 저장되어야 한다
+- 상세 메시지가 들어가야 한다
+
+로깅 기능에서 발생 가능한 오류 수준은 다음과 같이 정의했다
+
+먼저 시스템에서 로그는 핵심 기능이 아니라 부가 기능으로 판단했다
+
+- **로그 저장에 실패** → 부가적인 문제이므로 warn 로그만 남기도록 한다
+- **로그 컨텍스트 생성 실패** → 이 경우는 시스템이 예상하는 기본 전제 조건 검증에 실패한 경우이다. 즉 AOP 설정이나 메서드 시그니처가 예상과 다르게 변경되었다는 것이고 AOP가 동작하기 위한 시스템 구조에 문제가 발생했다는 것이므로 error로그를 남기고 오류를 던지도록 한다
+
+로그 데이터의 특성 상 비즈니스 로직의 성공/실패 여부와 관계없이 반드시 저장되어야 한다
+
+즉 로그 저장 실패가 비즈니스 로직 실행에 영향을 주면 안된다
+
+따라서 비즈니스 트랜잭션과 로그 저장 트랜잭션을 분리해서 로깅이 이루어지도록 한다
+
+담당자 등록 요청 메서드가 호출될 때 전후로 로깅 AOP가 작동하도록 설계하려 한다
+
+요청이 들어오면  ‘AOP 프록시 → 트랜잭션 프록시 → 비즈니스 로직’ 이런 프록시 체인을 타게 할 것이다
+
+이에 대한 상세 실행 순서는 다음과 같다:
+
+1. **@Around 어드바이스 시작**
+2. **@Transactional 트랜잭션 시작 (ManagerService.saveManager())**
+3. **joinPoint.proceed() 실행**
+4. **로그 저장 메서드 호출 (REQUIRES_NEW로 새 트랜잭션 생성)**
+5. **@Transacional 트랜잭션 종료 (ManagerService.saveManager())**
+6. **@Around 어드바이스 종료**
+
+
+로그 저장 메서드는 아래와 같이 생성했다
+
+```java
+@Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
+public class ManagerReqLogService {
+
+    private final ManagerReqLogRepository logRepository;
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void saveLog(ManagerSaveRequest managerSaveRequest, ManagerReqStatus status, User user, Long todoId, String message){
+        ManagerReqLog log = ManagerReqLog.builder()
+                .requestUserId(user.getId())
+                .targetUserId(managerSaveRequest.getManagerUserId())
+                .todoId(todoId)
+                .status(status)
+                .message(message)
+                .build();
+        logRepository.save(log);
+    }
+}
+```
+
+
+
+로그 저장 시 상세 내용을 같이 넣어줄 것이다
+
+**ManagerLogMessage** ENUM을 만들어서 비즈니스 성공/실패와 발생 가능한 오류 상황에 대한 상세 메시지를 관리하도록 했다
+
+
+
+AOP에서 사용할 데이터는 별도의 객체로 만들어서 관리하도록 한다
+
+이렇게 별도로 분리하지 않으면 AOP가 로깅에 필요한 모든 세부 사항을 관리해야 하고 로깅 요구 사항이 변경됐을 때 유연성이 떨어지게 된다
+
+**ManagerLogContext**라는 이름으로 다음과 같이 생성했다
+
+여기서 캐스팅, 유효성 검증과 에러 처리를 수행하도록 한다
+
+```java
+@Getter
+@Slf4j
+public class ManagerLogContext {
+    public static final int ARGS_COUNT = 3;
+    private final User user;
+    private final Long todoId;
+    private final ManagerSaveRequest request;
+
+    private ManagerLogContext(User user, Long todoId, ManagerSaveRequest request) {
+        this.user = user;
+        this.todoId = todoId;
+        this.request = request;
+    }
+
+    public static ManagerLogContext validateAndCreate(Object[] args){
+        validateArgs(args);
+        return new ManagerLogContext(
+                (User) args[0],
+                (Long) args[1],
+                (ManagerSaveRequest) args[2]
+        );
+    }
+
+    private static void validateArgs(Object[] args) {
+        validateArgsCount(args);
+        validateArgsType(args);
+    }
+
+    private static void validateArgsCount(Object[] args) {
+        if (args.length != ARGS_COUNT) {
+            String errorMsg = ManagerLogMessage.INVALIDATE_ARGS_COUNT.format(ARGS_COUNT, args.length);
+            log.error("ManagerLogContext 생성 실패: {}", errorMsg);
+            throw new ServerException(errorMsg);
+        }
+    }
+
+    private static void validateArgsType(Object[] args) {
+        if (!(args[0] instanceof User)) {
+            String errorMsg = ManagerLogMessage.INVALIDATE_USER_TYPE.format(args[0]!= null? args[0].getClass().getName(): "null");
+            log.error("ManagerLogContext 생성 실패: {}", errorMsg);
+            throw new ServerException(errorMsg);
+        }
+        if (!(args[1] instanceof Long)) {
+            String errorMsg = ManagerLogMessage.INVALIDATE_TODO_ID_TYPE.format(args[1] != null ? args[1].getClass().getName() : "null");
+            log.error("ManagerLogContext 생성 실패: {}", errorMsg);
+            throw new ServerException(errorMsg);
+        }
+        if (!(args[2] instanceof ManagerSaveRequest)) {
+            String errorMsg = ManagerLogMessage.INVALIDATE_REQUEST_TYPE.format(args[2] != null ? args[2].getClass().getName() : "null");
+            log.error("ManagerLogContext 생성 실패: {}", errorMsg);
+            throw new ServerException(errorMsg);
+        }
+    }
+}
+```
+
+이제 담당자 저장 메서드를 포인트컷으로 하는 @Around 어드바이스를 구현해준다
+
+여기서 @After가 아니라 @Around로 하는 이유는 다음과 같다
+
+- **메서드 실행 결과에 따라 처리를 다르게 해야 함**
+    - **성공 시** → SUCCESS 상태로 로그 저장
+    - **실패 시** → FAIL 상태로 로그 저장
+- **예외 종류에 따라 다르게 처리해야 함**
+    - 비즈니스 검증 실패
+    - 그 외 Exception → 내부 오류로 처리한다
+- **예외를 처리하되 다시 발생한 오류를 던져야 한다**
+    - 로그 저장 후에도 원래 발생한 예외를 내보내야 하기 때문이다
+
+```java
+@Aspect
+@Component
+@RequiredArgsConstructor
+@Slf4j
+public class ManagerReqLogAspect {
+    private static final String MANAGER_SAVE_POINTCUT =
+            "execution(* org.example.expert.domain.manager.service.ManagerService.saveManager(..))";
+
+    private final ManagerReqLogService logService;
+
+    @Around(MANAGER_SAVE_POINTCUT)
+    public Object logManagerAssignment(ProceedingJoinPoint joinPoint) throws Throwable{
+        ManagerLogContext managerLogContext = ManagerLogContext.validateAndCreate(joinPoint.getArgs());
+        try{
+            Object result = joinPoint.proceed();
+            String message = ManagerLogMessage.ASSIGNED_SUCCESS.format(managerLogContext.getRequest().getManagerUserId(), managerLogContext.getTodoId());
+            saveLog(managerLogContext, message, ManagerReqStatus.SUCCESS, null);
+            return result;
+        }catch (InvalidRequestException e) {
+            String message = ManagerLogMessage.ASSIGNED_FAIL.format(e.getMessage(), managerLogContext.getTodoId(), managerLogContext.getRequest().getManagerUserId());
+            saveLog(managerLogContext, message, ManagerReqStatus.FAIL, e);
+            throw e;
+        }catch(Exception e){
+            String message = ManagerLogMessage.INTERNAL_FAIL.format(e.getMessage(), managerLogContext.getTodoId(), managerLogContext.getRequest().getManagerUserId());
+            saveLog(managerLogContext, message, ManagerReqStatus.FAIL, e);
+            throw e;
+        }
+    }
+
+    private void saveLog (ManagerLogContext context, String message, ManagerReqStatus status, Exception originalError) {
+        try {
+            logService.saveLog(context.getRequest(), status, context.getUser(), context.getTodoId(), message);
+        } catch (Exception logError) {
+            if (originalError == null) {
+                log.error(ManagerLogMessage.LOG_SAVE_FAIL_WITH_ERROR.getFormat(), logError.getMessage(), logError);
+            } else {
+                log.error(ManagerLogMessage.LOG_SAVE_FAIL_WITH_ERROR.getFormat(), originalError.getMessage(), logError.getMessage(), logError);
+            }
+        }
+    }
+}
+```
+
+ManagerService의 saveManager()가 실행되면 포인트 컷이 트리거 되면서 **`logManagerAssignment()`**가 실행된다
+
+먼저 AOP 진입점에서 로깅에 필요한 컨텍스트를 준비한다
+
+이 시점에서 모든 필요한 파라미터의 유효성 검증이 이루어진다
+
+```java
+ManagerLogContext managerLogContext = ManagerLogContext.validateAndCreate(joinPoint.getArgs());
+```
+
+이후 saveManager()를 진행하고 try-catch 내에서 결과에 따른 메시지를 생성한다
+
+예외 처리는 세 가지 케이스로 구분했다
+
+- **비즈니스 정상 실행**
+- **비즈니스 로직 검증 실패**
+- **예상치 못한 오류**
+
+각 상황 별로 적절한 메시지 템플릿을 사용해서 컨텍스트에서 필요한 정보를 추출한 후 메시지를 포맷팅한다
+
+```java
+    @Around(MANAGER_SAVE_POINTCUT)
+    public Object logManagerAssignment(ProceedingJoinPoint joinPoint) throws Throwable{
+        ManagerLogContext managerLogContext = ManagerLogContext.validateAndCreate(joinPoint.getArgs());
+        try{
+            Object result = joinPoint.proceed();
+            String message = ManagerLogMessage.ASSIGNED_SUCCESS.format(managerLogContext.getRequest().getManagerUserId(), managerLogContext.getTodoId());
+            saveLog(managerLogContext, message, ManagerReqStatus.SUCCESS, null);
+            return result;
+        }catch (InvalidRequestException e) {
+            String message = ManagerLogMessage.ASSIGNED_FAIL.format(e.getMessage(), managerLogContext.getTodoId(), managerLogContext.getRequest().getManagerUserId());
+            saveLog(managerLogContext, message, ManagerReqStatus.FAIL, e);
+            throw e;
+        }catch(Exception e){
+            String message = ManagerLogMessage.INTERNAL_FAIL.format(e.getMessage(), managerLogContext.getTodoId(), managerLogContext.getRequest().getManagerUserId());
+            saveLog(managerLogContext, message, ManagerReqStatus.FAIL, e);
+            throw e;
+        }
+    }
+```
+
+**`saveLog()`**에서 로그를 저장하는 기능을 수행한다
+
+```java
+    private void saveLog (ManagerLogContext context, String message, ManagerReqStatus status, Exception originalError) {
+        try {
+            logService.saveLog(context.getRequest(), status, context.getUser(), context.getTodoId(), message);
+        } catch (Exception logError) {
+            if (originalError == null) {
+                log.error(ManagerLogMessage.LOG_SAVE_FAIL_WITH_ERROR.getFormat(), logError.getMessage(), logError);
+            } else {
+                log.error(ManagerLogMessage.LOG_SAVE_FAIL_WITH_ERROR.getFormat(), originalError.getMessage(), logError.getMessage(), logError);
+            }
+        }
+    }
+```
+
+앞서 언급했던 것처럼 비즈니스 로직과 로그 저장이 별도의 트랜잭션으로 분리되어 있어서 REQUIRES_NEW를 통해 로그 저장의 독립성이 보장된다
+
+로그 저장에 실패한 경우 에러 로깅을 남기도록 했다
+
+에러 로깅은 정상 케이스(비즈니스)에서 로그 저장에 실패한 경우와 또 다른 에러 상황에서 로그 저장 실패한 경우로 분기 된다
+
+이렇게 간단히 요구사항에 따른 로깅 기능을 구현해봤다
+
+현재는 동기적으로 로그를 저장하고 있지만 시스템 규모가 커지면 로그 저장을 비동기로 처리하거나 배치 처리로 한꺼번에 처리하는 방식을 고려해볼 수 있을 거 같다
+
+
+
+
+
+</details>
+
+<details>
 <summary><b>일정 검색 기능: queryDsl</b></summary>
 
 ### 기능 설명

@@ -43,9 +43,15 @@ public class Todo extends Timestamped {
         this.managers.add(new Manager(user, this));
     }
 
-    public void isOwner(Long userId){
-        if (!ObjectUtils.nullSafeEquals(userId, this.getUser().getId())) {
+    public void isOwner(User user){
+        if (!ObjectUtils.nullSafeEquals(user.getId(), this.user.getId())) {
             throw new InvalidRequestException("해당 일정을 만든 유저여야 합니다");
+        }
+    }
+
+    public void validateManagerAssignment(User targetUser){
+        if (ObjectUtils.nullSafeEquals(this.user.getId(), targetUser.getId())) {
+            throw new InvalidRequestException("일정 작성자는 본인을 담당자로 등록할 수 없습니다");
         }
     }
 }
