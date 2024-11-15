@@ -8,7 +8,7 @@ import org.example.expert.domain.user.enums.UserRole
 
 @Entity
 @Table(name = "users")
-class User constructor(
+class User protected constructor(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null,
 
