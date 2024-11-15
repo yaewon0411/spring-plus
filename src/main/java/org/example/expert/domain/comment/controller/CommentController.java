@@ -30,7 +30,7 @@ public class CommentController {
     @PostMapping("/todos/{todoId}/comments")
     public ResponseEntity<CommentSaveResponse> saveComment(
             @AuthenticationPrincipal LoginUser loginUser,
-            @PathVariable long todoId,
+            @PathVariable(value = "todoId") Long todoId,
             @Valid @RequestBody CommentSaveRequest commentSaveRequest
     ) {
         return ResponseEntity.ok(commentService.saveComment(loginUser.getUser(), todoId, commentSaveRequest));

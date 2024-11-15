@@ -8,7 +8,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.expert.domain.user.entity.User;
 import org.example.expert.domain.user.enums.UserRole;
-import org.hibernate.validator.constraints.Length;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Getter
@@ -28,11 +27,11 @@ public class SignupRequest {
     private String nickname;
 
     public User toEntity(PasswordEncoder passwordEncoder){
-        return User.builder()
-                .nickname(this.nickname)
-                .password(passwordEncoder.encode(this.password))
-                .email(this.email)
-                .userRole(UserRole.valueOf(this.userRole))
-                .build();
+        return new User(
+                this.email,
+                passwordEncoder.encode(this.password),
+                UserRole.valueOf(this.userRole),
+                this.nickname
+        );
     }
 }

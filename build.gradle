@@ -4,11 +4,23 @@ plugins {
     id 'io.spring.dependency-management' version '1.1.6'
 
     //querydsl 추가
-    id "com.ewerk.gradle.plugins.querydsl" version "1.0.10"
+    //id "com.ewerk.gradle.plugins.querydsl" version "1.0.10"
+
+    // Kotlin 플러그인
+    id 'org.jetbrains.kotlin.jvm' version '2.0.0'
+    id 'org.jetbrains.kotlin.plugin.spring' version '2.0.0'
+    id 'org.jetbrains.kotlin.plugin.jpa' version '2.0.0'
+    id 'org.jetbrains.kotlin.kapt' version '2.0.0'
+    id 'org.jetbrains.kotlin.plugin.lombok' version '2.0.0'
+
+
+//    id "com.querydsl.codegen" version "1.0.10"
+//    id "com.querydsl.apt" version "1.0.10"
 }
 
 group = 'org.example'
 version = '0.0.1-SNAPSHOT'
+
 
 java {
     toolchain {
@@ -20,11 +32,14 @@ configurations {
     compileOnly {
         extendsFrom annotationProcessor
     }
+    querydsl
 }
 
 repositories {
     mavenCentral()
 }
+
+def querydslVersion = "5.0.0" // 버전을 명시적으로 선언
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
@@ -51,11 +66,25 @@ dependencies {
     //devtools
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
-    //Querydsl 추가
-    implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
-    annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jakarta"
+    // QueryDSL 공통
+    implementation("com.querydsl:querydsl-jpa:${querydslVersion}:jakarta")
+    implementation "com.querydsl:querydsl-core:${querydslVersion}"
+
+
+    // QueryDSL - Java
+    annotationProcessor "com.querydsl:querydsl-apt:${querydslVersion}:jakarta"
     annotationProcessor "jakarta.annotation:jakarta.annotation-api"
     annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+
+    // QueryDSL - Kotlin
+    kapt "com.querydsl:querydsl-apt:${querydslVersion}:jakarta"
+    kapt "jakarta.annotation:jakarta.annotation-api"
+    kapt "jakarta.persistence:jakarta.persistence-api"
+
+
+    // Kotlin
+    implementation "org.jetbrains.kotlin:kotlin-stdlib"
+    implementation "org.jetbrains.kotlin:kotlin-reflect"
 
     //security
     implementation 'org.springframework.boot:spring-boot-starter-security'
@@ -66,22 +95,51 @@ dependencies {
 
 }
 
+// kotlin 추가 시작
+kapt {
+    correctErrorTypes = true
+    keepJavacAnnotationProcessors = true
+    generateStubs = true
+}
+
+allOpen {
+    annotation("jakarta.persistence.Entity")
+    annotation("jakarta.persistence.Embeddable")
+    annotation("jakarta.persistence.MappedSuperclass")
+}
+
+kotlin {
+    jvmToolchain(17)
+}
+
+//kotlin 추가 끝
+
+
 //querydsl 추가 시작
 def querydslDir = "src/main/generated"
-querydsl {
-    jpa = true
-    querydslSourcesDir = querydslDir
-}
+
+
+//querydsl {
+//    jpa = true
+//    querydslSourcesDir = querydslDir
+//}
+
+
 sourceSets {
-    main.java.srcDir querydslDir
+    main {
+        java.srcDirs += [querydslDir]
+        //kotlin.srcDirs += [querydslDir]
+    }
 }
-configurations {
-    querydsl.extendsFrom compileClasspath
-}
-compileQuerydsl {
-    options.annotationProcessorPath = configurations.querydsl
-}
+
+//compileQuerydsl {
+//    options.annotationProcessorPath = configurations.querydsl
+//}
+
+
 //querydsl 추가 끝
+
+
 
 tasks.named('test') {
     useJUnitPlatform()
