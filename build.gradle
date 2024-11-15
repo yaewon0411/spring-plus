@@ -3,8 +3,8 @@ plugins {
     id 'org.springframework.boot' version '3.3.3'
     id 'io.spring.dependency-management' version '1.1.6'
 
-//    //querydsl 추가
-//    id "com.ewerk.gradle.plugins.querydsl" version "1.0.10"
+    //querydsl 추가
+    //id "com.ewerk.gradle.plugins.querydsl" version "1.0.10"
 
     // Kotlin 플러그인
     id 'org.jetbrains.kotlin.jvm' version '2.0.0'
@@ -12,10 +12,15 @@ plugins {
     id 'org.jetbrains.kotlin.plugin.jpa' version '2.0.0'
     id 'org.jetbrains.kotlin.kapt' version '2.0.0'
     id 'org.jetbrains.kotlin.plugin.lombok' version '2.0.0'
+
+
+//    id "com.querydsl.codegen" version "1.0.10"
+//    id "com.querydsl.apt" version "1.0.10"
 }
 
 group = 'org.example'
 version = '0.0.1-SNAPSHOT'
+
 
 java {
     toolchain {
@@ -27,6 +32,7 @@ configurations {
     compileOnly {
         extendsFrom annotationProcessor
     }
+    querydsl
 }
 
 repositories {
@@ -62,6 +68,8 @@ dependencies {
 
     // QueryDSL 공통
     implementation("com.querydsl:querydsl-jpa:${querydslVersion}:jakarta")
+    implementation "com.querydsl:querydsl-core:${querydslVersion}"
+
 
     // QueryDSL - Java
     annotationProcessor "com.querydsl:querydsl-apt:${querydslVersion}:jakarta"
@@ -109,9 +117,8 @@ kotlin {
 
 //querydsl 추가 시작
 def querydslDir = "src/main/generated"
-def kotquerydslDir = "$buildDir/generated/source/kapt/main"
 
-//
+
 //querydsl {
 //    jpa = true
 //    querydslSourcesDir = querydslDir
@@ -121,18 +128,15 @@ def kotquerydslDir = "$buildDir/generated/source/kapt/main"
 sourceSets {
     main {
         java.srcDirs += [querydslDir]
-        kotlin.srcDirs += [kotquerydslDir]
+        //kotlin.srcDirs += [querydslDir]
     }
 }
-
-configurations {
-    querydsl.extendsFrom compileClasspath
-}
-
 
 //compileQuerydsl {
 //    options.annotationProcessorPath = configurations.querydsl
 //}
+
+
 //querydsl 추가 끝
 
 
