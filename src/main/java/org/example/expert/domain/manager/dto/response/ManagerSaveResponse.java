@@ -3,7 +3,6 @@ package org.example.expert.domain.manager.dto.response;
 import lombok.Getter;
 import org.example.expert.domain.manager.entity.Manager;
 import org.example.expert.domain.user.dto.response.UserResponse;
-import org.example.expert.domain.user.entity.User;
 
 @Getter
 public class ManagerSaveResponse {
