@@ -1,8 +1,8 @@
 package org.example.expert.domain.log.manager.service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.expert.domain.log.ManagerReqLog;
 import org.example.expert.domain.manager.dto.request.ManagerSaveRequest;
-import org.example.expert.domain.log.manager.ManagerReqLog;
 import org.example.expert.domain.log.manager.ManagerReqStatus;
 import org.example.expert.domain.log.manager.ManagerReqLogRepository;
 import org.example.expert.domain.user.entity.User;
@@ -19,13 +19,13 @@ public class ManagerReqLogService {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void saveLog(ManagerSaveRequest managerSaveRequest, ManagerReqStatus status, User user, Long todoId, String message){
-        ManagerReqLog log = ManagerReqLog.builder()
-                .requestUserId(user.getId())
-                .targetUserId(managerSaveRequest.getTargetUserId())
-                .todoId(todoId)
-                .status(status)
-                .message(message)
-                .build();
+        ManagerReqLog log = new ManagerReqLog(
+                user.getId(),
+                managerSaveRequest.getTargetUserId(),
+                todoId,
+                status,
+                message
+        );
         logRepository.save(log);
     }
 }
