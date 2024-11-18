@@ -5,9 +5,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.expert.config.security.dto.ErrorResponse;
-import org.example.expert.domain.common.exception.ServerException;
+import org.example.expert.exception.ServerException;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
 
 @Slf4j
 @RequiredArgsConstructor

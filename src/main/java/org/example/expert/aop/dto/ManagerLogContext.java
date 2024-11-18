@@ -2,7 +2,7 @@ package org.example.expert.aop.dto;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.example.expert.domain.common.exception.ServerException;
+import org.example.expert.exception.ServerException;
 import org.example.expert.domain.manager.dto.request.ManagerSaveRequest;
 import org.example.expert.domain.log.manager.ManagerLogMessage;
 import org.example.expert.domain.user.entity.User;

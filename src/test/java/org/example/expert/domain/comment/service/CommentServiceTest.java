@@ -3,7 +3,7 @@ package org.example.expert.domain.comment.service;
 import org.example.expert.domain.comment.dto.response.CommentListRespDto;
 import org.example.expert.domain.comment.dto.response.CommentResponse;
 import org.example.expert.domain.comment.repository.CommentRepository;
-import org.example.expert.domain.common.exception.InvalidRequestException;
+import org.example.expert.exception.InvalidRequestException;
 import org.example.expert.domain.todo.entity.Todo;
 import org.example.expert.domain.todo.service.TodoService;
 import org.example.expert.domain.user.dto.response.UserResponse;

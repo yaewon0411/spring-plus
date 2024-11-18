@@ -3,7 +3,7 @@ package org.example.expert.domain.todo.entity
 import jakarta.persistence.*
 import org.example.expert.domain.comment.entity.Comment
 import org.example.expert.domain.common.entity.Timestamped
-import org.example.expert.domain.common.exception.InvalidRequestException
+import org.example.expert.exception.InvalidRequestException
 import org.example.expert.domain.manager.entity.Manager
 import org.example.expert.domain.user.entity.User
 

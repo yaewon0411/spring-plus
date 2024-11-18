@@ -2,7 +2,7 @@ package org.example.expert.domain.todo.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.expert.client.WeatherClient;
-import org.example.expert.domain.common.exception.InvalidRequestException;
+import org.example.expert.exception.InvalidRequestException;
 import org.example.expert.domain.todo.dto.request.TodoSaveRequest;
 import org.example.expert.domain.todo.dto.request.TodoListReqDto;
 import org.example.expert.domain.todo.dto.request.TodoSearchReqDto;

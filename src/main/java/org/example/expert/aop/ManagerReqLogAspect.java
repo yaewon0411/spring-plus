@@ -6,7 +6,7 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.example.expert.aop.dto.ManagerLogContext;
-import org.example.expert.domain.common.exception.InvalidRequestException;
+import org.example.expert.exception.InvalidRequestException;
 import org.example.expert.domain.log.manager.ManagerLogMessage;
 import org.example.expert.domain.log.manager.ManagerReqStatus;
 import org.example.expert.domain.log.manager.service.ManagerReqLogService;
