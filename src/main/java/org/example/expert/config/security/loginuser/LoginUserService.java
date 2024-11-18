@@ -1,7 +1,7 @@
 //package org.example.expert.config.security.loginuser;
 //
 //import lombok.RequiredArgsConstructor;
-//import org.example.expert.domain.user.repository.UserRepository;
+//import org.example.expert.domain.user.UserRepository;
 //import org.springframework.security.authentication.InternalAuthenticationServiceException;
 //import org.springframework.security.core.userdetails.UserDetails;
 //import org.springframework.security.core.userdetails.UserDetailsService;

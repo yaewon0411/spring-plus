@@ -1,10 +1,8 @@
 package org.example.expert.domain.todo;
 
-import org.example.expert.domain.todo.entity.Todo;
-import org.example.expert.domain.todo.repository.TodoRepository;
-import org.example.expert.domain.user.entity.User;
-import org.example.expert.domain.user.enums.UserRole;
-import org.example.expert.domain.user.repository.UserRepository;
+import org.example.expert.domain.user.User;
+import org.example.expert.domain.user.UserRole;
+import org.example.expert.domain.user.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -9,7 +9,7 @@ import org.example.expert.aop.dto.ManagerLogContext;
 import org.example.expert.exception.InvalidRequestException;
 import org.example.expert.domain.log.manager.ManagerLogMessage;
 import org.example.expert.domain.log.manager.ManagerReqStatus;
-import org.example.expert.domain.log.manager.service.ManagerReqLogService;
+import org.example.expert.service.ManagerReqLogService;
 import org.springframework.stereotype.Component;
 
 @Aspect

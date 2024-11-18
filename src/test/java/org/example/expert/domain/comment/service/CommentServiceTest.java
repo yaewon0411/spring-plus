@@ -1,12 +1,13 @@
 package org.example.expert.domain.comment.service;
 
-import org.example.expert.domain.comment.dto.response.CommentListRespDto;
-import org.example.expert.domain.comment.dto.response.CommentResponse;
-import org.example.expert.domain.comment.repository.CommentRepository;
+import org.example.expert.controller.comment.dto.response.CommentListRespDto;
+import org.example.expert.controller.comment.dto.response.CommentResponse;
+import org.example.expert.domain.comment.CommentRepository;
+import org.example.expert.controller.user.dto.response.UserInfoRespDto;
 import org.example.expert.exception.InvalidRequestException;
-import org.example.expert.domain.todo.entity.Todo;
-import org.example.expert.domain.todo.service.TodoService;
-import org.example.expert.domain.user.dto.response.UserResponse;
+import org.example.expert.domain.todo.Todo;
+import org.example.expert.service.TodoService;
+import org.example.expert.service.CommentService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,7 +45,7 @@ class CommentServiceTest {
         int size = 10;
 
         Todo todo = new Todo("title","contents","weather", null);
-        UserResponse userResponse = new UserResponse(1L, "user123@naver.com");
+        UserInfoRespDto userResponse = new UserInfoRespDto(1L, "user123@naver.com", "nickname");
         List<CommentResponse> commentList = List.of(
                 new CommentResponse(1L, "댓글 내용", userResponse),
                 new CommentResponse(2L, "댓글 내용", userResponse)
