@@ -1,6 +1,7 @@
 package org.example.expert.handler;
 
 import lombok.extern.slf4j.Slf4j;
+import org.example.expert.exception.CustomApiException;
 import org.example.expert.exception.InvalidRequestException;
 import org.example.expert.exception.ServerException;
 import org.example.expert.util.api.ApiError;
@@ -36,6 +37,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(InvalidRequestException.class)
     public ResponseEntity<ApiResult<ApiError>> invalidRequestExceptionException(InvalidRequestException ex) {
         return new ResponseEntity<>(ApiResult.Companion.error(HttpStatus.BAD_REQUEST.value(), ex.getMessage()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(CustomApiException.class)
+    public ResponseEntity<ApiResult<ApiError>> handleCustomApiException(CustomApiException e){
+        return new ResponseEntity<>(ApiResult.Companion.error(e.getErrorCode().getStatus(), e.getMessage()), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(ServerException.class)
