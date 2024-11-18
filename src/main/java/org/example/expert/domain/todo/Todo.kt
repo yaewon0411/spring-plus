@@ -12,7 +12,9 @@ import org.example.expert.domain.user.User
 class Todo protected constructor(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null,
+    @Column(length = 20, nullable = false)
     var title: String,
+    @Column(length = 255, nullable = false)
     var contents: String,
     var weather: String,
     @ManyToOne(fetch = FetchType.LAZY)

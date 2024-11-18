@@ -5,7 +5,6 @@ import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.example.expert.config.security.loginuser.LoginUser;
-import org.example.expert.domain.common.dto.AuthUser;
 import org.example.expert.domain.user.User;
 import org.example.expert.domain.user.UserRole;
 import org.springframework.beans.factory.annotation.Value;
