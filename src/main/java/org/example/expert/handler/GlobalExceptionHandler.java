@@ -1,7 +1,6 @@
 package org.example.expert.handler;
 
 import lombok.extern.slf4j.Slf4j;
-import org.example.expert.domain.auth.exception.AuthException;
 import org.example.expert.exception.InvalidRequestException;
 import org.example.expert.exception.ServerException;
 import org.example.expert.util.api.ApiError;
@@ -37,12 +36,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(InvalidRequestException.class)
     public ResponseEntity<ApiResult<ApiError>> invalidRequestExceptionException(InvalidRequestException ex) {
         return new ResponseEntity<>(ApiResult.Companion.error(HttpStatus.BAD_REQUEST.value(), ex.getMessage()), HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(AuthException.class)
-    public ResponseEntity<Map<String, Object>> handleAuthException(AuthException ex) {
-        HttpStatus status = HttpStatus.UNAUTHORIZED;
-        return getErrorResponse(status, ex.getMessage());
     }
 
     @ExceptionHandler(ServerException.class)
