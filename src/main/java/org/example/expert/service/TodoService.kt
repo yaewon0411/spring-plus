@@ -2,7 +2,7 @@ package org.example.expert.service
 
 import org.example.expert.client.WeatherClient
 import org.example.expert.controller.todo.dto.request.TodoListReqDto
-import org.example.expert.controller.todo.dto.request.TodoSaveReqDto
+import org.example.expert.controller.todo.dto.request.TodoCreateReqDto
 import org.example.expert.controller.todo.dto.request.TodoSearchReqDto
 import org.example.expert.controller.todo.dto.response.TodoInfoRespDto
 import org.example.expert.controller.todo.dto.response.TodoListRespDto
@@ -25,7 +25,7 @@ class TodoService(
     private val weatherClient: WeatherClient
 ) {
     @Transactional
-    fun saveTodo(user: User, todoSaveReqDto: TodoSaveReqDto): TodoSaveRespDto = todoSaveReqDto
+    fun saveTodo(user: User, todoCreateReqDto: TodoCreateReqDto): TodoSaveRespDto = todoCreateReqDto
             .toEntity(user, weatherClient.todayWeather)
             .let { todoRepository.save(it) }
             .let { TodoSaveRespDto(it) }

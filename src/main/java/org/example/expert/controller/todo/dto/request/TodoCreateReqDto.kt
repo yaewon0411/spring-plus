@@ -5,7 +5,7 @@ import org.example.expert.domain.todo.Todo
 import org.example.expert.domain.user.User
 import org.hibernate.validator.constraints.Length
 
-data class TodoSaveReqDto(
+data class TodoCreateReqDto(
     @field: NotBlank(message = "제목을 입력해야 합니다")
     @field: Length(min = 1, max = 20, message = "1자에서 20자 사이로 입력해야 합니다")
     val title: String = "",

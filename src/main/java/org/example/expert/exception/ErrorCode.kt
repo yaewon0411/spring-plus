@@ -15,6 +15,10 @@ enum class ErrorCode(
     INVALID_USER_ROLE("유효하지 않은 USER_ROLE 입니다", HttpStatus.BAD_REQUEST.value()),
     INVALID_TODO_STATE("일정 정보가 유효하지 않습니다", HttpStatus.INTERNAL_SERVER_ERROR.value()),
     TODO_NOT_FOUND("존재하지 않는 일정입니다", HttpStatus.NOT_FOUND.value()),
+    INVALID_MANAGER_STATE("담당자 정보가 유효하지 않습니다", HttpStatus.INTERNAL_SERVER_ERROR.value()),
+    TARGET_USER_NOT_FOUND("등록하려는 사용자가 존재하지 않습니다", HttpStatus.NOT_FOUND.value()),
+    ALREADY_ASSIGNED_USER("이미 해당 일정에 배정된 사용자입니다", HttpStatus.BAD_REQUEST.value()),
+    MANAGER_NOT_FOUND("존재하지 않는 일정 담당자입니다", HttpStatus.NOT_FOUND.value()),
 
 
 }

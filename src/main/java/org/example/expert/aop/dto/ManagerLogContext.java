@@ -2,8 +2,8 @@ package org.example.expert.aop.dto;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.example.expert.controller.manager.dto.request.ManagerCreateReqDto;
 import org.example.expert.exception.ServerException;
-import org.example.expert.controller.manager.dto.request.ManagerSaveRequest;
 import org.example.expert.domain.log.manager.ManagerLogMessage;
 import org.example.expert.domain.user.User;
 
@@ -14,9 +14,9 @@ public class ManagerLogContext {
     public static final int ARGS_COUNT = 3;
     private final User user;
     private final Long todoId;
-    private final ManagerSaveRequest request;
+    private final ManagerCreateReqDto request;
 
-    private ManagerLogContext(User user, Long todoId, ManagerSaveRequest request) {
+    private ManagerLogContext(User user, Long todoId, ManagerCreateReqDto request) {
         this.user = user;
         this.todoId = todoId;
         this.request = request;
@@ -27,7 +27,7 @@ public class ManagerLogContext {
         return new ManagerLogContext(
                 (User) args[0],
                 (Long) args[1],
-                (ManagerSaveRequest) args[2]
+                (ManagerCreateReqDto) args[2]
         );
     }
 
@@ -55,7 +55,7 @@ public class ManagerLogContext {
             log.error("ManagerLogContext 생성 실패: {}", errorMsg);
             throw new ServerException(errorMsg);
         }
-        if (!(args[2] instanceof ManagerSaveRequest)) {
+        if (!(args[2] instanceof ManagerCreateReqDto)) {
             String errorMsg = ManagerLogMessage.INVALIDATE_REQUEST_TYPE.format(args[2] != null ? args[2].getClass().getName() : "null");
             log.error("ManagerLogContext 생성 실패: {}", errorMsg);
             throw new ServerException(errorMsg);

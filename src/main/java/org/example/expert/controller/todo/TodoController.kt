@@ -2,10 +2,9 @@ package org.example.expert.controller.todo
 
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Positive
-import org.apache.coyote.Response
 import org.example.expert.config.security.loginuser.LoginUser
 import org.example.expert.controller.todo.dto.request.TodoListReqDto
-import org.example.expert.controller.todo.dto.request.TodoSaveReqDto
+import org.example.expert.controller.todo.dto.request.TodoCreateReqDto
 import org.example.expert.controller.todo.dto.request.TodoSearchReqDto
 import org.example.expert.controller.todo.dto.response.TodoInfoRespDto
 import org.example.expert.controller.todo.dto.response.TodoListRespDto
@@ -30,9 +29,9 @@ class TodoController(
     private val todoService: TodoService
 ) {
     @PostMapping
-    fun saveTodo(@Valid @RequestBody todoSaveReqDto: TodoSaveReqDto,
+    fun saveTodo(@Valid @RequestBody todoCreateReqDto: TodoCreateReqDto,
                  @AuthenticationPrincipal loginUser: LoginUser): ResponseEntity<ApiResult<TodoSaveRespDto>> =
-        ResponseEntity.ok(ApiResult.success(todoService.saveTodo(loginUser.user, todoSaveReqDto)))
+        ResponseEntity.ok(ApiResult.success(todoService.saveTodo(loginUser.user, todoCreateReqDto)))
 
     @GetMapping
     fun getTodoListByFilter(@Valid todoListReqDto: TodoListReqDto): ResponseEntity<ApiResult<TodoListRespDto>> =
