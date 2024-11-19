@@ -5,9 +5,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.expert.config.security.dto.ErrorResponse;
-import org.example.expert.domain.common.exception.ServerException;
+import org.example.expert.exception.ServerException;
+import org.example.expert.util.api.ApiError;
+import org.example.expert.util.api.ApiResult;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -17,8 +18,8 @@ public class SecurityResponseHandler {
 
     public void fail(HttpServletResponse response, String msg, HttpStatus httpStatus){
         try {
-            ErrorResponse errorResponse = ErrorResponse.of(msg, httpStatus.value());
-            String responseBody = om.writeValueAsString(errorResponse);
+            ApiResult<ApiError> error = ApiResult.Companion.error(httpStatus.value(), msg);
+            String responseBody = om.writeValueAsString(error);
 
             response.setContentType("application/json; charset=utf-8");
             response.setStatus(httpStatus.value());

@@ -10,8 +10,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.expert.config.security.handler.SecurityResponseHandler;
 import org.example.expert.config.security.loginuser.LoginUser;
-import org.example.expert.domain.auth.dto.request.SigninRequest;
-import org.example.expert.domain.auth.dto.response.SigninResponse;
+import org.example.expert.controller.auth.dto.request.LoginReqDto;
+import org.example.expert.controller.auth.dto.response.LoginRespDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
@@ -44,11 +44,11 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         try{
-            SigninRequest signinRequest = om.readValue(request.getInputStream(), SigninRequest.class);
+            LoginReqDto loginReqDto = om.readValue(request.getInputStream(), LoginReqDto.class);
             UsernamePasswordAuthenticationToken authenticationToken =
                     new UsernamePasswordAuthenticationToken(
-                            signinRequest.getEmail(),
-                            signinRequest.getPassword());
+                            loginReqDto.getEmail(),
+                            loginReqDto.getPassword());
             return authenticationManager.authenticate(authenticationToken);
         }catch (Exception e){
             log.info(e.getMessage(), e);
@@ -60,10 +60,10 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
         LoginUser loginUser = (LoginUser) authResult.getPrincipal();
         String token = jwtUtil.createToken(loginUser.getUser());
-        SigninResponse signinResponse = new SigninResponse(loginUser.getUser());
+        LoginRespDto loginRespDto = new LoginRespDto(loginUser.getUser());
 
         response.addHeader(JwtUtil.HEADER, token);
-        securityResponseHandler.success(response, signinResponse);
+        securityResponseHandler.success(response, loginRespDto);
     }
 
     @Override

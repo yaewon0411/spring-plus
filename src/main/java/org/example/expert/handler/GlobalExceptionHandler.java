@@ -1,10 +1,11 @@
 package org.example.expert.handler;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.Response;
-import org.example.expert.domain.auth.exception.AuthException;
-import org.example.expert.domain.common.exception.InvalidRequestException;
-import org.example.expert.domain.common.exception.ServerException;
+import org.example.expert.exception.CustomApiException;
+import org.example.expert.exception.InvalidRequestException;
+import org.example.expert.exception.ServerException;
+import org.example.expert.util.api.ApiError;
+import org.example.expert.util.api.ApiResult;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -19,12 +20,12 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> validationException(MethodArgumentNotValidException e) {
+    public ResponseEntity<ApiResult<Map<String, String>>> validationException(MethodArgumentNotValidException e) {
         Map<String, String> errorMap = new HashMap<>();
         e.getBindingResult().getFieldErrors().forEach(error ->
                 errorMap.put(error.getField(), error.getDefaultMessage())
         );
-        return getErrorResponse(HttpStatus.BAD_REQUEST, errorMap);
+        return new ResponseEntity<>(ApiResult.Companion.error(HttpStatus.BAD_REQUEST.value(),"유효성 검사 실패", errorMap), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(Exception.class)
@@ -34,15 +35,13 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(InvalidRequestException.class)
-    public ResponseEntity<Map<String, Object>> invalidRequestExceptionException(InvalidRequestException ex) {
-        HttpStatus status = HttpStatus.BAD_REQUEST;
-        return getErrorResponse(status, ex.getMessage());
+    public ResponseEntity<ApiResult<ApiError>> invalidRequestExceptionException(InvalidRequestException ex) {
+        return new ResponseEntity<>(ApiResult.Companion.error(HttpStatus.BAD_REQUEST.value(), ex.getMessage()), HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(AuthException.class)
-    public ResponseEntity<Map<String, Object>> handleAuthException(AuthException ex) {
-        HttpStatus status = HttpStatus.UNAUTHORIZED;
-        return getErrorResponse(status, ex.getMessage());
+    @ExceptionHandler(CustomApiException.class)
+    public ResponseEntity<ApiResult<ApiError>> handleCustomApiException(CustomApiException e){
+        return new ResponseEntity<>(ApiResult.Companion.error(e.getErrorCode().getStatus(), e.getMessage()), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(ServerException.class)

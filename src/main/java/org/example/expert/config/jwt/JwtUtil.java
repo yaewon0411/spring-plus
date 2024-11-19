@@ -5,9 +5,8 @@ import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.example.expert.config.security.loginuser.LoginUser;
-import org.example.expert.domain.common.dto.AuthUser;
-import org.example.expert.domain.user.entity.User;
-import org.example.expert.domain.user.enums.UserRole;
+import org.example.expert.domain.user.User;
+import org.example.expert.domain.user.UserRole;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -98,8 +97,8 @@ public class JwtUtil {
             UserRole userRole = UserRole.valueOf(claims.get("userRole", String.class));
             String nickname = claims.get("nickname", String.class);
 
-            AuthUser authUser = new AuthUser(userId, email, userRole, nickname);
-            return new LoginUser(User.fromAuthUser(authUser));
+            User user = new User(userId, email, userRole, nickname);
+            return new LoginUser(user);
         } catch (SecurityException | MalformedJwtException e) {
             log.error("Invalid JWT signature: {}", e.getMessage());
             throw new JwtException("잘못된 JWT 서명입니다");

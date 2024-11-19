@@ -1,12 +1,12 @@
 package org.example.expert.domain.todo.controller;
 
-import org.example.expert.domain.common.dto.AuthUser;
-import org.example.expert.domain.common.exception.InvalidRequestException;
-import org.example.expert.domain.todo.dto.response.TodoResponse;
-import org.example.expert.domain.todo.entity.Todo;
-import org.example.expert.domain.todo.service.TodoService;
-import org.example.expert.domain.user.entity.User;
-import org.example.expert.domain.user.enums.UserRole;
+import org.example.expert.controller.todo.TodoController;
+import org.example.expert.exception.InvalidRequestException;
+import org.example.expert.controller.todo.dto.response.TodoResponse;
+import org.example.expert.domain.todo.Todo;
+import org.example.expert.service.TodoService;
+import org.example.expert.domain.user.User;
+import org.example.expert.domain.user.UserRole;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -32,8 +32,7 @@ class TodoControllerTest {
     void todo_단건_조회에_성공한다() throws Exception {
         // given
         Long todoId = 1L;
-        AuthUser authUser = new AuthUser(1L, "email", UserRole.USER, "nicknameee");
-        User user = User.fromAuthUser(authUser);
+        User user = new User(1L, "email", UserRole.USER, "nicknameee");
         Todo todo = new Todo("title","contents","Sunny",user);
         TodoResponse response = new TodoResponse(todo);
         // when

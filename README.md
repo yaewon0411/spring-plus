@@ -1,3 +1,26 @@
+
+<details>
+<summary><b>엔티티 코틀린으로 전환: 주요 변경사항</b></summary>
+
+- @Getter 제거: 코틀린의 프로퍼티는 기본적으로 getter 자동 생성
+- 클래스 참조: ``::class`` 사용
+- 프로퍼티 선언
+  - pk(id)는 val로 선언 가능: jpa 구현체가 reflection을 통해 값을 할당하므로 불변으로 선언해도 됨
+  - createdAt은 var로 선언: val로 선언하면 처음 클래스 생성자가 올라올 떄 null로 설정되므로 var로 설정해야 한다. 어차피 updateable = false에 의해 수정 막아진다
+  - static 메서드: companion opbject 안에 구현
+  - 기본값 처리: 널이 불가능한 컬럼은 생성자에서 기본값 지정 필요
+  - 컬렉션 처리
+    - 초기화: jpa에서는 변경 가능한 컬렉션이 필요하므로 MutuableList 사용
+    - 빈 컬렉션: emptyList() 대신 mutubalListOf() 사용
+  - 어노테이션 관련
+    - cascade 타입 지정: 어노테이션의 배열 파라미터를 []로 표현
+  - 생성자 처리
+    - protected 생성자: @NoArgs(access = PROTECTED) 대신 protected consturctor 사용
+      - kotlin-jpa 플러그인 사용 시 protected consturctor에 필드를 포함하더라도 jpa가 필요로 하는 빈 protected 생성자를 자동 생성해줌
+      - 플러그인 없다면 별도로 no-args 생성자 명시적 구현 필요
+
+</details>
+
 <details>
 <summary><b>담당자 등록 요청 기록 로깅 AOP 구현</b></summary>
 

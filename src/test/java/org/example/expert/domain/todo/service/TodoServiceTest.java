@@ -1,8 +1,9 @@
 package org.example.expert.domain.todo.service;
 
-import org.example.expert.domain.todo.dto.request.TodoSearchReqDto;
-import org.example.expert.domain.todo.dto.response.TodoSearchRespDto;
-import org.example.expert.domain.todo.repository.TodoRepository;
+import org.example.expert.controller.todo.dto.request.TodoSearchReqDto;
+import org.example.expert.controller.todo.dto.response.TodoSearchRespDto;
+import org.example.expert.domain.todo.TodoRepository;
+import org.example.expert.service.TodoService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -11,7 +12,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -22,8 +22,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.example.expert.domain.todo.dto.response.TodoSearchRespDto.*;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;

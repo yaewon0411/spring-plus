@@ -1,7 +1,7 @@
 package org.example.expert.domain.log
 
 import jakarta.persistence.*
-import org.example.expert.domain.common.entity.Timestamped
+import org.example.expert.domain.base.BaseEntity
 import org.example.expert.domain.log.manager.ManagerReqStatus
 
 @Entity
@@ -26,7 +26,7 @@ class ManagerReqLog protected constructor(
     @Column(nullable = false)
     var message: String
 
-): Timestamped() {
+): BaseEntity() {
 
     constructor(requestUserId: Long, targetUserId: Long, todoId: Long, status: ManagerReqStatus, message: String): this(
         id = null,
