@@ -19,6 +19,7 @@ enum class ErrorCode(
     TARGET_USER_NOT_FOUND("등록하려는 사용자가 존재하지 않습니다", HttpStatus.NOT_FOUND.value()),
     ALREADY_ASSIGNED_USER("이미 해당 일정에 배정된 사용자입니다", HttpStatus.BAD_REQUEST.value()),
     MANAGER_NOT_FOUND("존재하지 않는 일정 담당자입니다", HttpStatus.NOT_FOUND.value()),
+    INVALID_COMMENT_STATE("댓글 정보가 유효하지 않습니다", HttpStatus.INTERNAL_SERVER_ERROR.value()),
 
 
 }
