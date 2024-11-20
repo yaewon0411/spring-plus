@@ -1,4 +1,7 @@
+<details>
+<summary><b>서비스랑 컨트롤러 코틀린으로 적용한 주요 변경 사항 기재하기</b></summary>
 
+</details>
 <details>
 <summary><b>엔티티 코틀린으로 전환: 주요 변경사항</b></summary>
 
@@ -399,7 +402,6 @@ ManagerLogContext managerLogContext = ManagerLogContext.validateAndCreate(joinPo
 ```java
 @Repository
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class CommentQueryDslRepositoryImpl implements CommentQueryDslRepository{
 
     private final JPAQueryFactory queryFactory;
@@ -483,7 +485,6 @@ queryDSL을 사용한 검색용 레포를 추가 생성해 다음과 같이 구�
 ```java
 @RequiredArgsConstructor
 @Repository
-@Transactional(readOnly = true)
 public class TodoSearchRepository {
 
     private final JPAQueryFactory queryFactory;
