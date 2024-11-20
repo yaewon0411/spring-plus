@@ -1,5 +1,6 @@
 package org.example.expert.exception
 
+import org.example.expert.domain.log.manager.ManagerLogMessage
 import org.springframework.http.HttpStatus
 
 enum class ErrorCode(
@@ -20,6 +21,7 @@ enum class ErrorCode(
     ALREADY_ASSIGNED_USER("이미 해당 일정에 배정된 사용자입니다", HttpStatus.BAD_REQUEST.value()),
     MANAGER_NOT_FOUND("존재하지 않는 일정 담당자입니다", HttpStatus.NOT_FOUND.value()),
     INVALID_COMMENT_STATE("댓글 정보가 유효하지 않습니다", HttpStatus.INTERNAL_SERVER_ERROR.value()),
+
 
 
 }
