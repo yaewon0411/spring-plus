@@ -26,7 +26,7 @@ class TodoService(
 ) {
     @Transactional
     fun saveTodo(user: User, todoCreateReqDto: TodoCreateReqDto): TodoSaveRespDto = todoCreateReqDto
-            .toEntity(user, weatherClient.todayWeather)
+            .toEntity(user, weatherClient.getTodayWeather())
             .let { todoRepository.save(it) }
             .let { TodoSaveRespDto(it) }
 

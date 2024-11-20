@@ -3,7 +3,6 @@ package org.example.expert.domain.todo
 import jakarta.persistence.*
 import org.example.expert.domain.comment.Comment
 import org.example.expert.domain.base.BaseEntity
-import org.example.expert.exception.InvalidRequestException
 import org.example.expert.domain.manager.Manager
 import org.example.expert.domain.user.User
 import org.example.expert.exception.CustomApiException

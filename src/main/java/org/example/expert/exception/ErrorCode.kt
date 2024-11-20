@@ -24,7 +24,8 @@ enum class ErrorCode(
     MANAGER_NOT_IN_TODO("해당 일정에 등록된 담당자가 아닙니다", HttpStatus.BAD_REQUEST.value()),
     FORBIDDEN_TODO_ACCESS("해당 일정에 권한이 없습니다", HttpStatus.FORBIDDEN.value()),
     AUTHOR_CANNOT_BE_MANAGER("일정 작정자는 본인을 담당자로 등록할 수 없습니다", HttpStatus.BAD_REQUEST.value()),
-
+    FAIL_TO_GET_WEATHER("날씨 데이터를 가져오는데 실패했습니다", HttpStatus.INTERNAL_SERVER_ERROR.value()),
+    WEATHER_NOT_FOUND("날씨 데이터가 존재하지 않습니다", HttpStatus.INTERNAL_SERVER_ERROR.value()),
 
 
 
