@@ -25,7 +25,6 @@ import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
 
 @Repository
-@Transactional(readOnly = true)
 class TodoQueryDslRepositoryImpl(
     private val queryFactory: JPAQueryFactory
 ): TodoQueryDslRepository {
@@ -39,8 +38,7 @@ class TodoQueryDslRepositoryImpl(
             .orderBy(todo.modifiedAt.desc())
             .fetch()
 
-        val totalCount = getTotalCountWithFindFilter(todoListReqDto)
-        return PageImpl(todoList, pageable, totalCount)
+        return PageImpl(todoList, pageable, getTotalCountWithFindFilter(todoListReqDto))
     }
 
     override fun findByIdWithUser(todoId: Long): Todo? =
@@ -90,8 +88,8 @@ class TodoQueryDslRepositoryImpl(
                 )
             }
         }
-        val totalCount = getTotalCountWithSearchFilter(todoSearchReqDto)
-        return PageImpl(todoList, pageable, totalCount)
+
+        return PageImpl(todoList, pageable, getTotalCountWithSearchFilter(todoSearchReqDto))
     }
 
     private fun createSearchFilter(todoSearchReqDto: TodoSearchReqDto): BooleanBuilder{

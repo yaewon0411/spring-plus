@@ -2,9 +2,10 @@ package org.example.expert.domain.manager
 
 import jakarta.persistence.*
 import org.example.expert.domain.base.BaseEntity
-import org.example.expert.exception.InvalidRequestException
 import org.example.expert.domain.todo.Todo
 import org.example.expert.domain.user.User
+import org.example.expert.exception.CustomApiException
+import org.example.expert.exception.ErrorCode
 
 @Entity
 @Table(name = "managers")
@@ -30,7 +31,7 @@ class Manager protected constructor(
 
     fun isAssigned(todoId: Long) {
         if (todo.id != todoId) {
-            throw InvalidRequestException("해당 일정에 등록된 담당자가 아닙니다.")
+            throw CustomApiException(ErrorCode.MANAGER_NOT_IN_TODO)
         }
     }
 

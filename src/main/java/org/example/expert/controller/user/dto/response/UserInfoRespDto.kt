@@ -9,6 +9,7 @@ data class UserInfoRespDto(
     val email: String,
     val nickname: String
 ) {
+
     constructor(user: User): this(
         id = user.id?: throw CustomApiException(ErrorCode.INVALID_USER_STATE),
         email = user.email,

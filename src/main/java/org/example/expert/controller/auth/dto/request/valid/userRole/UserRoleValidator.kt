@@ -3,7 +3,7 @@ package org.example.expert.controller.auth.dto.request.valid.userRole
 import jakarta.validation.ConstraintValidator
 import jakarta.validation.ConstraintValidatorContext
 import org.example.expert.domain.user.UserRole
-import org.example.expert.exception.InvalidRequestException
+import org.example.expert.exception.CustomApiException
 
 class UserRoleValidator: ConstraintValidator<ValidUserRole, String> {
 
@@ -15,7 +15,7 @@ class UserRoleValidator: ConstraintValidator<ValidUserRole, String> {
         return try{
             UserRole.of(value)
             true
-        }catch (e: InvalidRequestException){
+        }catch (e: CustomApiException){
             false
         }
     }
