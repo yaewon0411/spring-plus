@@ -33,7 +33,7 @@ public class SecurityResponseHandler {
 
     public void success(HttpServletResponse response, Object obj){
         try{
-            String responseBody = om.writeValueAsString(obj);
+            String responseBody = om.writeValueAsString(ApiResult.Companion.success(obj));
             response.setContentType("application/json; charset=utf-8");
             response.setStatus(HttpStatus.OK.value());
             response.getWriter().write(responseBody);

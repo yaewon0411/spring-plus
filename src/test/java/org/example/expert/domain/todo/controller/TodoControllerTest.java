@@ -1,8 +1,9 @@
 package org.example.expert.domain.todo.controller;
 
 import org.example.expert.controller.todo.TodoController;
-import org.example.expert.exception.InvalidRequestException;
-import org.example.expert.controller.todo.dto.response.TodoResponse;
+import org.example.expert.controller.todo.dto.response.TodoInfoRespDto;
+import org.example.expert.exception.CustomApiException;
+import org.example.expert.exception.ErrorCode;
 import org.example.expert.domain.todo.Todo;
 import org.example.expert.service.TodoService;
 import org.example.expert.domain.user.User;
@@ -34,7 +35,7 @@ class TodoControllerTest {
         Long todoId = 1L;
         User user = new User(1L, "email", UserRole.USER, "nicknameee");
         Todo todo = new Todo("title","contents","Sunny",user);
-        TodoResponse response = new TodoResponse(todo);
+        TodoInfoRespDto response = new TodoInfoRespDto(todo);
         // when
         when(todoService.getTodo(todoId)).thenReturn(response);
 
@@ -52,7 +53,7 @@ class TodoControllerTest {
 
         // when
         when(todoService.getTodo(todoId))
-                .thenThrow(new InvalidRequestException("Todo Not found"));
+                .thenThrow(new CustomApiException(ErrorCode.TODO_NOT_FOUND));
 
         // then
         mockMvc.perform(get("/todos/{todoId}", todoId))

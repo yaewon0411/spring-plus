@@ -36,7 +36,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
             }
 
             if(!isHeaderValid(request)){
-                throw new InvalidRequestException("Authorization 헤더가 누락되었습니다");
+                throw new JwtException("Authorization 헤더가 누락되었습니다");
             }
 
             //토큰 파싱
@@ -52,11 +52,9 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
             chain.doFilter(request, response);
 
-        }catch(JwtException e){
-            throw new InvalidRequestException(e.getMessage());
-        }catch(InvalidRequestException e){
+        } catch(JwtException e){
             throw e;
-        } catch(ServletException e){
+        } catch(Exception e){
             log.error("인가 중 서버 및 내부 오류 발생: ",e.getMessage(), e);
             throw e;
         }

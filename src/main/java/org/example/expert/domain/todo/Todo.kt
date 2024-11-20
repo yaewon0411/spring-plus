@@ -6,6 +6,8 @@ import org.example.expert.domain.base.BaseEntity
 import org.example.expert.exception.InvalidRequestException
 import org.example.expert.domain.manager.Manager
 import org.example.expert.domain.user.User
+import org.example.expert.exception.CustomApiException
+import org.example.expert.exception.ErrorCode
 
 @Entity
 @Table(name = "todos")
@@ -43,13 +45,13 @@ class Todo protected constructor(
 
     fun isOwner(user: User){
         if(this.user.id != user.id){
-            throw InvalidRequestException("해당 일정을 만든 유저여야 합니다")
+            throw CustomApiException(ErrorCode.FORBIDDEN_TODO_ACCESS)
         }
     }
 
     fun validateManagerAssignment(targetUser: User){
         if (user.id == targetUser.id) {
-            throw InvalidRequestException("일정 작성자는 본인을 담당자로 등록할 수 없습니다")
+            throw CustomApiException(ErrorCode.AUTHOR_CANNOT_BE_MANAGER)
         }
     }
 }

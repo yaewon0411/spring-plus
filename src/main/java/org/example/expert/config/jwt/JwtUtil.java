@@ -57,32 +57,6 @@ public class JwtUtil {
         throw new JwtException("JWT이 존재하지 않습니다");
     }
 
-    //TODO 얘는 지울 거
-    public Claims extractClaims(String token) {
-        try {
-            return Jwts.parserBuilder()
-                    .setSigningKey(key)
-                    .build()
-                    .parseClaimsJws(token)
-                    .getBody();
-        } catch (SecurityException | MalformedJwtException e) {
-            log.error("Invalid JWT signature: {}", e.getMessage());
-            throw new JwtException("잘못된 JWT 서명입니다");
-        } catch (ExpiredJwtException e) {
-            log.error("Expired JWT token: {}", e.getMessage());
-            throw new JwtException("만료된 JWT 토큰입니다");
-        } catch (UnsupportedJwtException e) {
-            log.error("Unsupported JWT token: {}", e.getMessage());
-            throw new JwtException("지원되지 않는 JWT 토큰입니다");
-        } catch (IllegalArgumentException e) {
-            log.error("JWT claims string is empty: {}", e.getMessage());
-            throw new JwtException("JWT 토큰이 비어있습니다");
-        } catch (Exception e) {
-            log.error("JWT token error: {}", e.getMessage());
-            throw new JwtException("JWT 토큰 오류가 발생했습니다");
-        }
-    }
-
 
     public LoginUser validateToken (String token) {
         try {
