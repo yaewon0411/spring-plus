@@ -1,13 +1,17 @@
 package org.example.expert.domain.comment.service;
 
+import org.example.expert.controller.comment.dto.response.CommentInfoRespDto;
 import org.example.expert.controller.comment.dto.response.CommentListRespDto;
-import org.example.expert.controller.comment.dto.response.CommentResponse;
 import org.example.expert.domain.comment.CommentRepository;
 import org.example.expert.controller.user.dto.response.UserInfoRespDto;
-import org.example.expert.exception.InvalidRequestException;
 import org.example.expert.domain.todo.Todo;
+import org.example.expert.domain.user.User;
+import org.example.expert.domain.user.UserRole;
+import org.example.expert.exception.CustomApiException;
+import org.example.expert.exception.ErrorCode;
 import org.example.expert.service.TodoService;
 import org.example.expert.service.CommentService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,6 +39,14 @@ class CommentServiceTest {
     @Mock
     private CommentRepository commentRepository;
 
+    private User user;
+
+    @BeforeEach
+    void setUp(){
+        user = new User(1L,"test@test.com", UserRole.USER, "nicknameeee");
+    }
+
+
     @Test
     @DisplayName("todo 댓글 목록 페이징 조회 성공 테스트")
     void getComments_success(){
@@ -44,29 +56,29 @@ class CommentServiceTest {
         int page = 0;
         int size = 10;
 
-        Todo todo = new Todo("title","contents","weather", null);
+        Todo todo = new Todo("title","contents","weather", user);
         UserInfoRespDto userResponse = new UserInfoRespDto(1L, "user123@naver.com", "nickname");
-        List<CommentResponse> commentList = List.of(
-                new CommentResponse(1L, "댓글 내용", userResponse),
-                new CommentResponse(2L, "댓글 내용", userResponse)
+        List<CommentInfoRespDto> commentList = List.of(
+                new CommentInfoRespDto(1L, "댓글 내용", userResponse),
+                new CommentInfoRespDto(2L, "댓글 내용", userResponse)
         );
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "modifiedAt"));
-        PageImpl<CommentResponse> commentPage = new PageImpl<>(commentList, pageable, commentList.size());
+        PageImpl<CommentInfoRespDto> commentPage = new PageImpl<>(commentList, pageable, commentList.size());
 
         //when
         when(todoService.findByIdOrFail(todoId)).thenReturn(todo);
         when(commentRepository.getCommentsWithUserByTodoId(todoId, pageable)).thenReturn(commentPage);
 
-        CommentListRespDto result = commentService.getComments(todoId, page, size);
+        CommentListRespDto result = commentService.getCommentList(todoId, page, size);
 
         //then
         assertAll(
                 () -> assertThat(result.getCommentList()).hasSize(commentList.size()).containsExactlyElementsOf(commentList),
                 () -> assertThat(result.getTotalElements()).isEqualTo(commentList.size()),
                 () -> assertThat(result.getPageNumber()).isEqualTo(page),
-                () -> assertThat(result.isHasNext()).isFalse(),
-                () -> assertThat(result.isHasPrevious()).isFalse()
+                () -> assertThat(result.getHasNext()).isFalse(),
+                () -> assertThat(result.getHasPrevious()).isFalse()
         );
 
     }
@@ -78,16 +90,16 @@ class CommentServiceTest {
         int page = 0;
         int size = 10;
 
-        Todo todo = new Todo("title","contents","weather", null);
+        Todo todo = new Todo("title","contents","weather", user);
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "modifiedAt"));
-        Page<CommentResponse> emptyPage = new PageImpl<>(List.of(), pageable, 0);
+        Page<CommentInfoRespDto> emptyPage = new PageImpl<>(List.of(), pageable, 0);
 
         when(todoService.findByIdOrFail(todoId)).thenReturn(todo);
         when(commentRepository.getCommentsWithUserByTodoId(todoId, pageable))
                 .thenReturn(emptyPage);
 
         //when
-        CommentListRespDto result = commentService.getComments(todoId, page, size);
+        CommentListRespDto result = commentService.getCommentList(todoId, page, size);
 
         //then
         assertAll(
@@ -95,8 +107,8 @@ class CommentServiceTest {
                 () -> assertThat(result.getTotalElements()).isZero(),
                 () -> assertThat(result.getTotalPages()).isZero(),
                 () -> assertThat(result.getPageNumber()).isZero(),
-                () -> assertThat(result.isHasNext()).isFalse(),
-                () -> assertThat(result.isHasPrevious()).isFalse()
+                () -> assertThat(result.getHasNext()).isFalse(),
+                () -> assertThat(result.getHasPrevious()).isFalse()
         );
 
     }
@@ -108,17 +120,17 @@ class CommentServiceTest {
         int page = 2;
         int size = 10;
         int totalCount = 12;
-        Todo todo = new Todo("title","contents","weather", null);
+        Todo todo = new Todo("title","contents","weather", user);
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "modifiedAt"));
-        Page<CommentResponse> emptyPage = new PageImpl<>(List.of(), pageable, totalCount);
+        Page<CommentInfoRespDto> emptyPage = new PageImpl<>(List.of(), pageable, totalCount);
 
         when(todoService.findByIdOrFail(todoId)).thenReturn(todo);
         when(commentRepository.getCommentsWithUserByTodoId(todoId, pageable))
                 .thenReturn(emptyPage);
 
         // when
-        CommentListRespDto result = commentService.getComments(todoId, page, size);
+        CommentListRespDto result = commentService.getCommentList(todoId, page, size);
 
         // then
         assertAll(
@@ -126,8 +138,8 @@ class CommentServiceTest {
                 () -> assertThat(result.getTotalElements()).isEqualTo(totalCount),
                 () -> assertThat(result.getTotalPages()).isEqualTo(2),
                 () -> assertThat(result.getPageNumber()).isEqualTo(2),
-                () -> assertThat(result.isHasNext()).isFalse(),
-                () -> assertThat(result.isHasPrevious()).isTrue()
+                () -> assertThat(result.getHasNext()).isFalse(),
+                () -> assertThat(result.getHasPrevious()).isTrue()
         );
     }
 
@@ -137,18 +149,17 @@ class CommentServiceTest {
         Long todoId = 1L;
         int page = 0;
         int size = 10;
-        String todoNotFound = "Todo Not Found";
 
-        doThrow(new InvalidRequestException(todoNotFound)).when(todoService).findByIdOrFail(todoId);
+        doThrow(new CustomApiException(ErrorCode.TODO_NOT_FOUND)).when(todoService).findByIdOrFail(todoId);
 
         // when
         assertThatThrownBy(() ->
-                commentService.getComments(todoId, page, size))
-                .isInstanceOf(InvalidRequestException.class)
-                .hasMessage(todoNotFound);
+                commentService.getCommentList(todoId, page, size))
+                .isInstanceOf(CustomApiException.class)
+                .hasMessage(ErrorCode.TODO_NOT_FOUND.getMessage());
 
         verify(todoService).findByIdOrFail(todoId);
-        verify(commentRepository, never()).getCommentsWithUserByTodoId(any(), any());
+        verify(commentRepository, never()).getCommentsWithUserByTodoId(anyLong(), any(Pageable.class));
     }
 
 

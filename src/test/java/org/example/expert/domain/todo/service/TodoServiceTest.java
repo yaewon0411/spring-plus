@@ -1,5 +1,6 @@
 package org.example.expert.domain.todo.service;
 
+import org.example.expert.client.WeatherClient;
 import org.example.expert.controller.todo.dto.request.TodoSearchReqDto;
 import org.example.expert.controller.todo.dto.response.TodoSearchRespDto;
 import org.example.expert.domain.todo.TodoRepository;
@@ -22,6 +23,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.example.expert.controller.todo.dto.response.TodoSearchRespDto.*;
+import static org.example.expert.controller.todo.dto.response.TodoSearchRespDto.TodoRespDto.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -35,6 +38,10 @@ class TodoServiceTest {
     @Mock
     private TodoRepository todoRepository;
 
+    @Mock
+    private WeatherClient weatherClient;
+
+
     @Nested
     @DisplayName("searchTodos 메서드는")
     class SearchTodosTest {
@@ -45,16 +52,12 @@ class TodoServiceTest {
 
         @BeforeEach
         void setUp() {
-            searchReqDto = new TodoSearchReqDto();
-            searchReqDto.setKeyword("테스트");
-            searchReqDto.setStartCreatedAt("2024-01-01");
-            searchReqDto.setEndCreatedAt("2024-01-31");
-            searchReqDto.setPage(0);
-            searchReqDto.setSize(10);
+            searchReqDto = new TodoSearchReqDto("테스트","2024-01-01", "2024-01-31", 0, 10 );
 
-            List<TodoRespDto.ManagerRespDto> managerList = List.of(
-                    new TodoRespDto.ManagerRespDto("담당자1", 1L),
-                    new TodoRespDto.ManagerRespDto("담당자2", 2L)
+
+            List<ManagerRespDto> managerList = List.of(
+                    new TodoRespDto.ManagerRespDto(1L, "담당자1"),
+                    new TodoRespDto.ManagerRespDto(2L, "담당자2")
             );
 
             todoList = List.of(
@@ -79,7 +82,7 @@ class TodoServiceTest {
                     .thenReturn(todoPage);
 
             // when
-            TodoSearchRespDto result = todoService.searchTodos(searchReqDto);
+            TodoSearchRespDto result = todoService.searchTodoList(searchReqDto);
 
             // then
             assertThat(result).isNotNull();
@@ -93,7 +96,7 @@ class TodoServiceTest {
             assertThat(firstTodo.getTotalManagersCount()).isEqualTo(2L);
             assertThat(firstTodo.getManagerList()).hasSize(2);
 
-            TodoRespDto.ManagerRespDto firstManager = firstTodo.getManagerList().get(0);
+            ManagerRespDto firstManager = firstTodo.getManagerList().get(0);
             assertThat(firstManager.getManagerNickname()).isEqualTo("담당자1");
             assertThat(firstManager.getUserId()).isEqualTo(1L);
 
@@ -113,15 +116,15 @@ class TodoServiceTest {
                     .thenReturn(emptyPage);
 
             // when
-            TodoSearchRespDto result = todoService.searchTodos(searchReqDto);
+            TodoSearchRespDto result = todoService.searchTodoList(searchReqDto);
 
             // then
             assertThat(result).isNotNull();
             assertThat(result.getTodoList()).isEmpty();
             assertThat(result.getTotalElements()).isZero();
             assertThat(result.getTotalPages()).isZero();
-            assertThat(result.isHasNext()).isFalse();
-            assertThat(result.isHasPrevious()).isFalse();
+            assertThat(result.getHasNext()).isFalse();
+            assertThat(result.getHasPrevious()).isFalse();
 
             verify(todoRepository).searchTodosByFilter(any(TodoSearchReqDto.class), any(Pageable.class));
         }
@@ -130,17 +133,13 @@ class TodoServiceTest {
         @DisplayName("날짜 범위 검색이 정상적으로 처리된다")
         void handleDateRangeSearchCorrectly() {
             // given
-            TodoSearchReqDto dateRangeReqDto = new TodoSearchReqDto();
-            dateRangeReqDto.setStartCreatedAt("2024-01-01");
-            dateRangeReqDto.setEndCreatedAt("2024-01-31");
-            dateRangeReqDto.setPage(0);
-            dateRangeReqDto.setSize(10);
+            TodoSearchReqDto dateRangeReqDto = new TodoSearchReqDto("","2024-01-01", "2024-01-31", 0, 10 );
 
             when(todoRepository.searchTodosByFilter(any(TodoSearchReqDto.class), any(Pageable.class)))
                     .thenReturn(todoPage);
 
             // when
-            TodoSearchRespDto result = todoService.searchTodos(dateRangeReqDto);
+            TodoSearchRespDto result = todoService.searchTodoList(dateRangeReqDto);
 
             // then
             assertThat(result).isNotNull();
@@ -179,14 +178,14 @@ class TodoServiceTest {
                     .thenReturn(pageWithMultipleItems);
 
             // when
-            TodoSearchRespDto result = todoService.searchTodos(paginationReqDto);
+            TodoSearchRespDto result = todoService.searchTodoList(paginationReqDto);
 
             // then
             assertThat(result.getPageNumber()).isEqualTo(1);
             assertThat(result.getTotalPages()).isEqualTo(3); // 12개 항목, 페이지당 5개 → 3페이지
             assertThat(result.getTotalElements()).isEqualTo(12);
-            assertThat(result.isHasNext()).isTrue();
-            assertThat(result.isHasPrevious()).isTrue();
+            assertThat(result.getHasNext()).isTrue();
+            assertThat(result.getHasPrevious()).isTrue();
         }
     }
 

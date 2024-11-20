@@ -7,6 +7,8 @@ import org.example.expert.domain.manager.Manager
 import org.example.expert.domain.user.User
 import org.example.expert.exception.CustomApiException
 import org.example.expert.exception.ErrorCode
+import java.time.LocalDate
+import java.time.LocalDateTime
 
 @Entity
 @Table(name = "todos")
@@ -30,9 +32,6 @@ class Todo protected constructor(
 
 ): BaseEntity() {
 
-    init {
-        managers.add(Manager(user, this))
-    }
 
     constructor(title: String, contents: String, weather: String, user: User):this(
         id = null,
@@ -40,7 +39,10 @@ class Todo protected constructor(
         contents = contents,
         weather = weather,
         user = user
-    )
+    ){
+        managers.add(Manager(user, this))
+    }
+
 
     fun isOwner(user: User){
         if(this.user.id != user.id){
@@ -52,5 +54,10 @@ class Todo protected constructor(
         if (user.id == targetUser.id) {
             throw CustomApiException(ErrorCode.AUTHOR_CANNOT_BE_MANAGER)
         }
+    }
+
+    companion object{
+        fun createForTest(id: Long, title: String, contents: String, weather: String, user: User) =
+            Todo(id, title, contents, weather, user)
     }
 }
