@@ -14,6 +14,7 @@ import java.util.*
 import org.springframework.context.event.EventListener
 
 @Component
+@Profile("test")
 class DummyUser (
     private val userRepository:UserRepository,
     private val entityManager:EntityManager
