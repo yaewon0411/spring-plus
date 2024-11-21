@@ -36,6 +36,10 @@ spring:
       enabled: always
   mvc:
     throw-exception-if-no-handler-found: true
+  data:
+    redis:
+      host: localhost
+      port: 6379
 
 
 logging:

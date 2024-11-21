@@ -7,7 +7,13 @@ import org.example.expert.exception.ErrorCode
 import org.springframework.security.crypto.password.PasswordEncoder
 
 @Entity
-@Table(name = "users")
+@Table(
+    name = "users",
+    indexes = [
+        Index(name = "idx_nickname", columnList = "nickname"),
+        Index(name = "idx_nickname_hash", columnList = "nickname_hash")
+    ]
+)
 class User protected constructor(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null,
@@ -21,7 +27,10 @@ class User protected constructor(
     var userRole: UserRole,
 
     @Column(length = 12, nullable = false)
-    var nickname: String
+    var nickname: String,
+
+    @Column(name = "nickname_hash", nullable = false)
+    val nicknameHash: Int = nickname.hashCode()
 ): BaseEntity() {
 
     constructor(email: String, password: String, userRole: UserRole, nickname: String): this(
