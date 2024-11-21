@@ -1,5 +1,7 @@
 <details>
 <summary><b>유저 검색 API 성능 개션</b></summary>
+    
+- UserServiceTest에서 진행
 
 1) 기본 검색 (Base): 별도의 최적화 없이 기본 쿼리 실행
 2) 인덱스 사용 (Index): nickname 컬럼에 인덱스 적용
@@ -68,7 +70,12 @@ fun searchUserListWithCache(nickname: String, page: Int, size: Int): UserInfoLis
 | Redis 캐시 (첫 요청) | 137ms    |
 | Redis 캐시 (캐시 히트) | 5ms      |
 
+- 테스트 진행 스크린샷 일부
 
+<img src="https://github.com/user-attachments/assets/ce39731d-de4e-48b9-9674-b5edd573855f" width="300" height="300">
+<img src="https://github.com/user-attachments/assets/80d8d277-fafb-4941-87bb-1b4aae31babd" width="300" height="300">
+<img src="https://github.com/user-attachments/assets/dc6a5dec-ed3c-4371-94fd-814ba96dfc52" width="300" height="300">
+<img src="https://github.com/user-attachments/assets/43553b10-685c-4a33-84a8-df24fc597d7d" width="300" height="300">
 
 
 </details>
