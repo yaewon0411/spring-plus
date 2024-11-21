@@ -28,7 +28,7 @@ class DummyUser (
         generateTestUsers()
     }
 
-    fun generateTestUsers(count: Int = 500_000) {
+    fun generateTestUsers(count: Int = 1_000_000) {
         println("더미 데이터 생성 시작")
 
         val batchSize = 5000

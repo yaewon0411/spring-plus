@@ -1,7 +1,79 @@
 <details>
-<summary><b>서비스랑 컨트롤러 코틀린으로 적용한 주요 변경 사항 기재하기</b></summary>
+<summary><b>유저 검색 API 성능 개션</b></summary>
+
+1) 기본 검색 (Base): 별도의 최적화 없이 기본 쿼리 실행
+2) 인덱스 사용 (Index): nickname 컬럼에 인덱스 적용
+3) 해시 값 활용 (Hash): nickname의 해시값을 저장하고 복합 인덱스 사용
+4) Redis 캐시 적용 (Cache): 검색 결과를 Redis에 캐싱
+
+
+### 구현 상세
+1. 기본 검색
+```java
+@Query(
+    value = "select /*+ NO_INDEX(users idx_nickname) */ * from users where nickname = :nickname",
+    countQuery = "select count(*) from users where nickname = :nickname",
+    nativeQuery = true
+)
+fun findUserByNicknameWithoutIndex(
+    @Param("nickname") nickname: String,
+    pageable: Pageable
+): Page<User>
+```
+
+2. 인덱스 사용
+```java
+CREATE INDEX idx_nickname ON users (nickname);
+```
+
+3. 해시
+```java
+@Entity
+@Table(
+    name = "users",
+    indexes = [
+        Index(name = "idx_nickname_hash", columnList = "nickname_hash,nickname")
+    ]
+)
+class User(
+    @Column(name = "nickname_hash")
+    val nicknameHash: Int = nickname.hashCode()
+)
+```
+
+4. Redis 캐시
+```kotlin
+fun searchUserListWithCache(nickname: String, page: Int, size: Int): UserInfoListRespDto {
+    val cacheKey = "user:$nickname:$page:$size"
+    return redisTemplate.opsForValue().get(cacheKey)?.let { cachedDto ->
+        cachedDto
+    } ?: run {
+        val result = searchUserList(nickname, page, size)
+        redisTemplate.opsForValue().set(cacheKey, result, Duration.ofMinutes(10))
+        result
+    }
+}
+```
+
+### 성능 테스트
+- 데이터 크기: 1_000_000건
+- 검색 조건: 닉네임 "리쿠군🤍" 검색
+- 각 테스트 5회 실행 후 평균값 측정
+
+| 구현 방식 | 평균 응답 시간 |
+|----------|----------|
+| 기본 검색 | 141ms    |
+| 인덱스 사용 | 21ms     |
+| 해시 값 활용 | 10ms     |
+| Redis 캐시 (첫 요청) | 137ms    |
+| Redis 캐시 (캐시 히트) | 5ms      |
+
+
+
 
 </details>
+
+
 <details>
 <summary><b>엔티티 코틀린으로 전환: 주요 변경사항</b></summary>
 

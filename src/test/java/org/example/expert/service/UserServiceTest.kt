@@ -78,11 +78,15 @@ class UserServiceTest{
     fun test_cache_search() {
         val nickname = "리쿠군🤍"
 
-        val start = System.currentTimeMillis()
-        val result = userService.searchUserListWithCache(nickname, 0, 10)
-        val end = System.currentTimeMillis()
+        val startWithoutCache = System.currentTimeMillis()
+        val resultWithoutCache = userService.searchUserListWithCache(nickname, 0, 10)
+        val timeWithoutCache = System.currentTimeMillis() - startWithoutCache
+        println("캐시 미스 (첫 요청) 소요 시간: ${timeWithoutCache}ms")
 
-        println("result = ${result}")
-        println("캐시 검색 소요 시간:  ${end - start}ms")
+        // 캐시 히트 케이스 (두 번째 요청)
+        val startWithCache = System.currentTimeMillis()
+        val resultWithCache = userService.searchUserListWithCache(nickname, 0, 10)
+        val timeWithCache = System.currentTimeMillis() - startWithCache
+        println("캐시 히트 (두 번째 요청) 소요 시간: ${timeWithCache}ms")
     }
 }
